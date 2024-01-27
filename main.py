@@ -9,6 +9,7 @@ def generateMoves(archiveName: str):
         result = csv.reader(File)
         for line in result:
             move = Move(int(line[0]), line[1], line[2], line[3], line[4], int(line[5]), float(line[6]), int(line[7]))
+            moveChart[line[1]] = move
             moveChart[line[0]] = move
     
     return moveChart
@@ -64,7 +65,9 @@ def main():
 
     # Testes
     IDpokeA = input("Insira o número do pokemon A: ")
+    LVpokeA = int(input("Insira o nivel do pokemom A: "))
     IDpokeB = input("Insira o número do pokemon B: ")
+    LVpokeB = int(input("Insira o nivel do pokemon B: "))
 
     pokeA: Pokemon = pokemons[IDpokeA]
     pokeB: Pokemon = pokemons[IDpokeB]
@@ -82,8 +85,8 @@ def main():
         vidaP2 = (vidaB * 100) // pokeB.hp
         barravidaP2 = vidaP2 * "[" if vidaB > 0  else 'Desmaiado'
 
-        print(f"\n{pokeA.name}: {vidaA}/{pokeA.hp} \n {barravidaP1}")
-        print(f"{pokeB.name}: {vidaB}/{pokeB.hp} \n {barravidaP2}")
+        print(f"\n{pokeA.name} (LV: {LVpokeA}): {vidaA}/{pokeA.hp} \n {barravidaP1}")
+        print(f"{pokeB.name} (LV: {LVpokeB}): {vidaB}/{pokeB.hp} \n {barravidaP2}")
 
         if vidaA <= 0 or vidaB <= 0:
             break
@@ -100,19 +103,19 @@ def main():
 
         if duelResult == "A":
             initB += 1
-            damage = moveDamage(pokeA, pokeB, moveA, effectiveness)
+            damage = moveDamage(pokeA, pokeB, moveA, effectiveness, LVpokeA)
             vidaB = (vidaB - damage) if (vidaB - damage > 0) else 0
             print(f"{pokeA.name} atacou {pokeB.name} utilizando {moveA.name}, causando {damage} de dano!")
 
         elif duelResult == "B":
             initA += 1
-            damage = moveDamage(pokeB, pokeA, moveB, effectiveness)
+            damage = moveDamage(pokeB, pokeA, moveB, effectiveness, LVpokeB)
             vidaA = (vidaA - damage) if (vidaA - damage > 0) else 0
             print(f"{pokeB.name} atacou {pokeA.name} utilizando {moveB.name}, causando {damage} de dano!")
 
         elif duelResult == "D":
-            damageA = moveDamage(pokeA, pokeB, moveA, effectiveness)
-            damageB = moveDamage(pokeB, pokeA, moveB, effectiveness)
+            damageA = moveDamage(pokeA, pokeB, moveA, effectiveness, LVpokeA)
+            damageB = moveDamage(pokeB, pokeA, moveB, effectiveness, LVpokeB)
 
             vidaA = (vidaA - damageB) if (vidaA - damageB > 0) else 0
             vidaB = (vidaB - damageA) if (vidaB - damageA > 0) else 0

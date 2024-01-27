@@ -73,7 +73,7 @@
 73,Leech Seed,The user steals 1/8 of the target's max HP until the target is switched out is KO'ed or uses Rapid Spin; does not work against Grass-type Pokemon or Pokemon behind Substitutes.,Grass,d-,0,0.90,10
 74,Growth,Raises the user's Attack and Special Attack by 1 stage. If the weather is Sun Growth raises Attack and SpAttk two stages each.,Normal,a+,0,1.00,40
 75,Razor Leaf,Has a high critical hit ratio.,Grass,Physical,55,0.95,25
-76,SolarBeam,The user prepares on turn one becoming uncontrollable and then attacks on turn two. During Sunny Day this move fires immediately; during Rain Dance Sandstorm and Hail this move has half power.,Grass,Special,120,1.00,10
+76,Solar Beam,The user prepares on turn one becoming uncontrollable and then attacks on turn two. During Sunny Day this move fires immediately; during Rain Dance Sandstorm and Hail this move has half power.,Grass,Special,120,1.00,10
 77,PoisonPowder,Poisons the target.,Poison,d-,0,0.75,35
 78,Stun Spore,Paralyzes the target.,Grass,s-,0,0.75,30
 79,Sleep Powder,Puts the target to sleep.,Grass,s-,0,0.75,15

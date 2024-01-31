@@ -1,5 +1,5 @@
 import csv
-from classes import Move, Pokemon, Dao
+from classes import *
 
 def generateMoves(archiveName: str):
     moveChart = {}
@@ -40,26 +40,7 @@ def getDao(archiveName: str, ID):
     
     return selectedDao
 
-def generatePokemons(archiveName: str):
-    pokemonChart = {}
-    with open(archiveName, 'r') as File:
-        result = csv.reader(File)
-        for line in result:
-            poke = Pokemon(line[0], line[1], line[2], line[3], int(line[4]), int(line[5]), int(line[6]), int(line[7]), int(line[8]), int(line[9]), int(line[10]), int(line[11]), bool(line[12]), [])
-            pokemonChart[line[0]] = poke
-    
-    return pokemonChart
-
-def getPokemon(archiveName: str, ID):
-    with open(archiveName, 'r') as File:
-        result = csv.reader(File)
-        for line in result:
-            if line[0] == ID:
-                selectedPoke = Pokemon(line[0], line[1], line[2], line[3], int(line[4]), int(line[5]), int(line[6]), int(line[7]), int(line[8]), int(line[9]), int(line[10]), int(line[11]), bool(line[12]), [])
-    
-    return selectedPoke
-
-def generateEffectiveness(archiveName: str):
+def generateTypeChart(archiveName: str):
     effectivenessChart = {}
 
     with open(archiveName, 'r') as File:

@@ -1,24 +1,5 @@
 import copy
 
-class Pokemon:
-    def __init__(self, id, name, type1, type2, total: int, hp: int, attack: int, defense: int, spAtk: int, spDef: int, speed: int, generation: int, legendary: bool, moves: list):
-        self.id = id
-        self.name = name
-        self.type1 = type1
-        self.type2 = type2
-        
-        self.total = total
-        self.hp = hp
-        self.attack = attack
-        self.defense = defense
-        self.spAtk = spAtk
-        self.spDef = spDef
-        self.speed = speed
-        
-        self.generation = generation
-        self.legendary = legendary
-        self.moves = moves
-
 class Dao:
 	def __init__(self, id, name, level: int, type1, type2, moves: list, STR: int, RES: int, POW: int, MRES: int, AGI: int, HP: int, currentHP: int):
 		self.id = id

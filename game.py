@@ -44,10 +44,15 @@ class Game:
 
             # Debug area
             debug("")
-            battle.currentDaoA.currentHP -= 10 * (self.clock.tick(FPS) / 1000)
+            battle.currentDaoA.currentHP -= 40 * (self.clock.tick(FPS) / 1000)
 
             if battle.currentDaoA.currentHP <= 0:
                 battle.Summon(Battle.YOU, 2)
+                battle.initA += 1
+                battle.state = Battle.FIGHT_MENU
+
+            if battle.initA >= 2:
+                battle.state = Battle.TEXT_ON_SCREEN
 
             # Update screen
             pygame.display.update()

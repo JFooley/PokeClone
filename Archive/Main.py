@@ -1,5 +1,6 @@
 import os
-from PokeBattle import *
+from battle import 
+from utils import *
 
 def main():
     moves = generateMoves(os.path.join("Data", "Moves.csv")) 

@@ -45,9 +45,16 @@ def pokeDuel(pokeA: Pokemon, pokeB: Pokemon, moveA: Move, moveB: Move, initA, in
         return "D"
     
 class Battle():
+    # Terms
     YOU = "A"
     FOE = "B"
     SUMMON = "summon"
+
+    # States
+    DEFAULT = 'default'
+    TEXT_ON_SCREEN = 'txt'
+    FIGHT_MENU = 'fgt'
+    SUMMON_MENU = 'smn'
 
     def __init__(self, daoListA: list, daoListB: list):
         # Copia a lista de daos para a batalha
@@ -59,6 +66,8 @@ class Battle():
 
         self.initA: int
         self.initB: int
+
+        self.state = self.DEFAULT
 
     def Start(self):
         self.currentDaoA: Dao = self.battleListA[0]

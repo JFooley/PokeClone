@@ -11,7 +11,7 @@ class Game:
         self.clock = pygame.time.Clock()
         pygame.display.set_caption("Dao's Guide")
 
-        self.BattleUI = BattleUI()
+        self.battleUI = BattleUI()
 
     def run(self):
         # Test        
@@ -26,6 +26,7 @@ class Game:
         battle = Battle([daoA1, daoA2, daoA3], [daoB1, daoB2, daoB3])
         battle.Start()
 
+
         while True: 
             for event in pygame.event.get():
                 # Filtro evento de fechar o jogo
@@ -39,7 +40,7 @@ class Game:
             
             # Showing area
             self.screen.fill('#728a72')
-            self.BattleUI.display(battle)
+            self.battleUI.display(battle)
 
             # Debug area
             debug("")

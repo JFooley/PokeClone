@@ -26,7 +26,7 @@ def generateDaos(archiveName: str):
     with open(archiveName, 'r') as File:
         result = csv.reader(File)
         for line in result:
-            daoObj = Dao(id= line[0], name= line[1], level= 1, type1= line[2], type2= line[3], moves= [], STR= line[6], RES= line[7], POW= line[8], MRES= line[9], AGI= line[10], HP= line[5], currentHP= line[5])
+            daoObj = Dao(id= line[0], name= line[1], level= 1, type1= line[2], type2= line[3], moves= [], STR= int(line[6]), RES= int(line[7]), POW= int(line[8]), MRES= int(line[9]), AGI= int(line[10]), HP= int(line[5]), currentHP= int(line[5]))
             daoChart[line[0]] = daoObj
 
     return daoChart
@@ -36,7 +36,7 @@ def getDao(archiveName: str, ID):
         result = csv.reader(File)
         for line in result:
             if line[0] == ID:
-                selectedDao = Dao(id= line[0], name= line[1], level= 1, type1= line[2], type2= line[3], moves= [], STR= line[6], RES= line[7], POW= line[8], MRES= line[9], AGI= line[10], HP= line[5], currentHP= line[5])
+                selectedDao = Dao(id= line[0], name= line[1], level= 1, type1= line[2], type2= line[3], moves= [], STR= int(line[6]), RES= int(line[7]), POW= int(line[8]), MRES= int(line[9]), AGI= int(line[10]), HP= int(line[5]), currentHP= int(line[5]))
     
     return selectedDao
 

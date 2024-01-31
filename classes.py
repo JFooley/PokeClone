@@ -35,13 +35,30 @@ class Dao:
 		self.MRES = MRES
 		self.AGI = AGI
 		
-		self.curretHP = currentHP
-		self.effect = []
+		self.currentHP = currentHP
+		self.effects: list = []
             
 		self.state = "idle"
+	
+	def checkEffects(self):
+		condition = []
+		for effect in self.effects:
+			if effect.type != Effect.DEFAULT and effect.type != Effect.CONTINOUS:
+				condition.append(effect.type)
+
+		return condition
 			
 class Effect: 
-	def __init__(self, HP, STR, RES, POW, MRES, AGI, INIT: int, foeHP, foeSTR, foeRES, foePOW, foeMRES, foeAGI, foeINIT: int):
+	DEFAULT = "default"
+	POISON = "poison"
+	FREEZE = "freeze"
+	FRAGILE = "fragile"
+	CONTINOUS = "continuous effect"
+
+	def __init__(self, type, HP, STR, RES, POW, MRES, AGI, INIT: int, foeHP, foeSTR, foeRES, foePOW, foeMRES, foeAGI, foeINIT: int):
+		self.type = type if type != '' else Effect.DEFAULT
+		self.turn = 0
+
 		self.HP = HP
 		self.STR = STR
 		self.RES = RES
@@ -58,25 +75,24 @@ class Effect:
 		self.foeAGI = foeAGI
 		self.foeINIT = foeINIT
 	
-	def applyStats(self, dao: Dao, foe_dao: Dao):
-		me = copy.deepcopy(dao)
-		foe = copy.deepcopy(foe_dao)
-        
-		me.HP += (self.HP * me.HP) / 100
-		me.STR += (self.STR * me.STR) / 100
-		me.POW += (self.POW * me.POW) / 100
-		me.RES += (self.RES * me.RES) / 100
-		me.MRES += (self.MRES * me.MRES) / 100
-		me.AGI += (self.AGI * me.AGI) / 100
+	def applyStats(self, dao: Dao, foe: Dao):
+		dao.HP += (self.HP * dao.HP) // 100
+		dao.currentHP += (self.HP * dao.HP) // 100
+		dao.STR += (self.STR * dao.STR) // 100
+		dao.POW += (self.POW * dao.POW) // 100
+		dao.RES += (self.RES * dao.RES) // 100
+		dao.MRES += (self.MRES * dao.MRES) // 100
+		dao.AGI += (self.AGI * dao.AGI) // 100
 
-		foe.HP += (self.foeHP * foe.HP) / 100
-		foe.STR += (self.foeSTR * foe.STR) / 100
-		foe.POW += (self.foePOW * foe.POW) / 100
-		foe.RES += (self.foeRES * foe.RES) / 100
-		foe.MRES += (self.foeMRES * foe.MRES) / 100
-		foe.AGI += (self.foeAGI * foe.AGI) / 100
+		foe.HP += (self.foeHP * foe.HP) // 100
+		foe.currentHP += (self.foeHP * foe.HP) // 100
+		foe.STR += (self.foeSTR * foe.STR) // 100
+		foe.POW += (self.foePOW * foe.POW) // 100
+		foe.RES += (self.foeRES * foe.RES) // 100
+		foe.MRES += (self.foeMRES * foe.MRES) // 100
+		foe.AGI += (self.foeAGI * foe.AGI) // 100
 
-		return me, foe
+		return dao, foe
 	
 	def applyInit(self, init, foeInit):
 		init += self.INIT
@@ -85,7 +101,7 @@ class Effect:
 		return init, foeInit
 	
 class Move:
-	def __init__(self, id, name, text, type, kind, power: int, accuracy: float, uses: int, level: int, effect: Effect):
+	def __init__(self, id, name, text, type, kind, power: int, accuracy: float, uses: int, level: int, effect: list):
 		self.id = id
 		self.name = name
 		self.text = text

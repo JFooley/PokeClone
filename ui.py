@@ -75,6 +75,11 @@ class BattleUI:
 		pygame.draw.rect(self.display_surface, UI_BG_COLOR, rect, border_radius= int(BUTTON_HEIGTH))
 
 		# draw text
+		padding_X = BUTTON_HEIGTH
+		padding_Y = BUTTON_HEIGTH // 2
+		text_offset = pygame.Rect((rect.left + padding_X), (rect.top + padding_Y), CHATBOX_WIDTH, CHATBOX_WIDTH)
+		text_surface = self.font_medium.render(text, True, textcolor)
+		self.display_surface.blit(text_surface, text_offset)
 
 	def display(self, battle: Battle):
 		# Dao A
@@ -103,6 +108,7 @@ class BattleUI:
 			pass # Colocar as esferas DAO 
 
 		elif battle.state == Battle.TEXT_ON_SCREEN:
-			texto_teste = "Ola tudo bem? hahahhaa"
+			# CRIAR UMA FORMA DE QUEBRAR A LINHA
+			texto_teste = "Ola tudo bem? hahahhaa Ola tudo bem? hahahhaa"
 			self.show_chatbox(texto_teste, TEXT_COLOR, self.chat_box)
 

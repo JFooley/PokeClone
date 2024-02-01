@@ -1,6 +1,5 @@
 import pygame, sys
 from settings import *
-from debug import *
 from ui import BattleUI
 from battle import Battle
 from utils import *
@@ -28,7 +27,7 @@ class Game:
             self.state = self.EXPLORING
 
     def run(self):
-        battleUI = BattleUI(self.battleObject, self.state)
+        battleUI = BattleUI(self.battleObject, self)
 
         while True: 
             for event in pygame.event.get():

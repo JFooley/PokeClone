@@ -10,8 +10,8 @@ class BattleUI:
 	BUTTON_SIMPLE = "BS"
 	BUTTON_DAO = "BD"
 
-	def __init__(self, battleObject: Battle, gamestate):
-		self.gamestate = gamestate
+	def __init__(self, battleObject: Battle, game):
+		self.game = game
 		self.battle: Battle = battleObject
 		self.clock = pygame.time.Clock()
 
@@ -54,7 +54,7 @@ class BattleUI:
 	def run(self):
 		####### Test ########      
 		keys = pygame.key.get_pressed()
-		if self.gamestate == 0 and keys[pygame.K_SPACE]:
+		if self.game.state == 0 and keys[pygame.K_SPACE]:
 			daoA1 = self.daos['3']
 			daoA2 = self.daos['10']
 			daoA3 = self.daos['15']
@@ -76,17 +76,17 @@ class BattleUI:
 
 
 			####### Test ######## 
-			self.battle.currentDaoA.currentHP -= 30 * (self.clock.tick(FPS) / 1000)
+			# self.battle.currentDaoA.currentHP -= 30 * (self.clock.tick(FPS) / 1000)
 
-			if self.battle.currentDaoA.currentHP <= 0:
+			if self.game.state == 1 and keys[pygame.K_LEFT]:
 				self.battle.Summon(Battle.YOU, 2)
 				self.battle.initA += 1
 				self.battle.state = Battle.FIGHT_MENU
 
-			if self.battle.initA == 2:
+			if self.game.state == 1 and keys[pygame.K_RIGHT]:
 				self.battle.state = Battle.TEXT_ON_SCREEN
 
-			elif self.battle.initA == 3:
+			elif self.game.state == 1 and keys[pygame.K_DOWN]:
 				self.battle.End()
 			####### Test ######## 
 

@@ -1,58 +1,50 @@
-import pygame, sys, os
+import pygame, sys
 from settings import *
 from debug import *
-from ui import *
+from ui import BattleUI
+from battle import Battle
 from utils import *
 
 class Game:
+    # States
+    EXPLORING = 0
+    ON_BATTLE = 1
+    ON_MENU = 2
+
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode((WIDTH, HEIGTH))
         self.clock = pygame.time.Clock()
+
         pygame.display.set_caption("Dao's Guide")
 
-        self.battleUI = BattleUI()
+
+        self.battleObject = Battle()
+        self.state: int = 0
+
+    def Update_status(self):
+        if self.battleObject.state != Battle.DEFAULT:
+            self.state = self.ON_BATTLE
+        else:
+            self.state = self.EXPLORING
 
     def run(self):
-        # Test        
-        daoA1 = getDao(archiveName= os.path.join("Data", "Daos.csv"), ID= '3')
-        daoA2 = getDao(archiveName= os.path.join("Data", "Daos.csv"), ID= '10')
-        daoA3 = getDao(archiveName= os.path.join("Data", "Daos.csv"), ID= '20')
-
-        daoB1 = getDao(archiveName= os.path.join("Data", "Daos.csv"), ID= '6')
-        daoB2 = getDao(archiveName= os.path.join("Data", "Daos.csv"), ID= '15')
-        daoB3 = getDao(archiveName= os.path.join("Data", "Daos.csv"), ID= '25')
-
-        battle = Battle([daoA1, daoA2, daoA3], [daoB1, daoB2, daoB3])
-        battle.Start()
-
+        battleUI = BattleUI(self.battleObject, self.state)
 
         while True: 
             for event in pygame.event.get():
-                # Filtro evento de fechar o jogo
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
 
-                # Filtro evento de input
-                elif event.type == pygame.KEYDOWN:
-                    pass
-            
-            # Showing area
-            self.screen.fill('#728a72')
-            self.battleUI.display(battle)
+                # if event.type == pygame.KEYDOWN and event.key == pygame.K_F11:
+                #     pygame.display.toggle_fullscreen()
 
-            # Debug area
-            debug("")
-            battle.currentDaoA.currentHP -= 40 * (self.clock.tick(FPS) / 1000)
+            # Must Run
+            self.Update_status()
+            battleUI.run()
 
-            if battle.currentDaoA.currentHP <= 0:
-                battle.Summon(Battle.YOU, 2)
-                battle.initA += 1
-                battle.state = Battle.FIGHT_MENU
-
-            if battle.initA >= 2:
-                battle.state = Battle.TEXT_ON_SCREEN
+            # Debug
 
             # Update screen
             pygame.display.update()

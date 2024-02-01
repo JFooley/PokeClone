@@ -1,7 +1,8 @@
-import pygame
+import pygame, os
 from pygame import Rect
 from settings import * 
 from battle import Battle
+from utils import *
 
 class BattleUI:
 	# buttons
@@ -9,7 +10,15 @@ class BattleUI:
 	BUTTON_SIMPLE = "BS"
 	BUTTON_DAO = "BD"
 
-	def __init__(self):
+	def __init__(self, battleObject: Battle, gamestate):
+		self.gamestate = gamestate
+		self.battle: Battle = battleObject
+		self.clock = pygame.time.Clock()
+
+		# Variables
+		self.intro_offset = (WIDTH // 2)
+		self.time_stamp = 0
+	
 		# general 
 		self.display_surface = pygame.display.get_surface()
 		self.font_medium = pygame.font.Font(UI_FONT,UI_FONT_SIZE)
@@ -39,15 +48,57 @@ class BattleUI:
 		# Chat text setup
 		self.chat_box = pygame.Rect(CHATBOX_POS_X, CHATBOX_POS_Y, CHATBOX_WIDTH, CHATBOX_HEIGTH)
 
+		# Listas
+		self.daos = generateDaos(archiveName= os.path.join("Data", "Daos.csv"))
+
+	def run(self):
+		####### Test ########      
+		keys = pygame.key.get_pressed()
+		if self.gamestate == 0 and keys[pygame.K_SPACE]:
+			daoA1 = self.daos['3']
+			daoA2 = self.daos['10']
+			daoA3 = self.daos['15']
+			daoB1 = self.daos['6']
+			daoB2 = self.daos['20']
+			daoB3 = self.daos['30']
+
+			self.battle.Start([daoA1, daoA2, daoA3], [daoB1, daoB2, daoB3])
+		####### Test ########   
+
+		if self.battle.state == Battle.DEFAULT:
+			return
+		elif self.battle.state == Battle.INTRO:
+			self.play_intro()
+		elif self.battle.state == Battle.END:
+			self.play_ending()
+		else:
+			self.display()
+
+
+			####### Test ######## 
+			self.battle.currentDaoA.currentHP -= 30 * (self.clock.tick(FPS) / 1000)
+
+			if self.battle.currentDaoA.currentHP <= 0:
+				self.battle.Summon(Battle.YOU, 2)
+				self.battle.initA += 1
+				self.battle.state = Battle.FIGHT_MENU
+
+			if self.battle.initA == 2:
+				self.battle.state = Battle.TEXT_ON_SCREEN
+
+			elif self.battle.initA == 3:
+				self.battle.End()
+			####### Test ######## 
+
 	def show_bar(self, current, max_amount, bg_rect, color):
 		# draw bg 
 		pygame.draw.rect(self.display_surface,UI_BG_COLOR,bg_rect)
 
 		# converting stat to pixel
 		ratio = current / max_amount
-		current_width = bg_rect.width * ratio
 		current_rect = bg_rect.copy()
-		current_rect.width = current_width
+		current_rect.width = bg_rect.width * ratio
+
 
 		# drawing the bar
 		pygame.draw.rect(self.display_surface, color, current_rect)
@@ -81,34 +132,111 @@ class BattleUI:
 		text_surface = self.font_medium.render(text, True, textcolor)
 		self.display_surface.blit(text_surface, text_offset)
 
-	def display(self, battle: Battle):
+	def display(self):
+		top_width = WIDTH * 5/8
+		bottom_width = WIDTH * 3/8
+
+		L1 = (0, 0)
+		L2 = (top_width, 0)
+		L3 = (bottom_width, HEIGTH)
+		L4 = (0, HEIGTH)
+		
+		R1 = (WIDTH, 0)
+		R2 = (top_width, 0)
+		R3 = (bottom_width, HEIGTH)
+		R4 = (WIDTH, HEIGTH)
+		
+		pygame.draw.polygon(surface= self.display_surface, color= "#4e668a", points= [L1, L2, L3])
+		pygame.draw.polygon(surface= self.display_surface, color= "#4e668a", points= [L1, L3, L4])
+
+		pygame.draw.polygon(surface= self.display_surface, color= "#854a4a", points= [R1, R2, R3])
+		pygame.draw.polygon(surface= self.display_surface, color= "#854a4a", points= [R1, R3, R4])
+
 		# Dao A
-		self.show_bar(int(battle.currentDaoA.currentHP), int(battle.currentDaoA.HP), self.daoA_hpbar, HP_COLOR)
-		self.show_text(f"{int(battle.currentDaoA.currentHP)} / {int(battle.currentDaoA.HP)}", self.daoA_hptext, TEXT_COLOR)
-		self.show_text(f"LV: {battle.currentDaoA.level} {battle.currentDaoA.name}", self.daoA_name, TEXT_COLOR)
-		self.show_text(f"+{battle.initA}", self.daoA_init, TEXT_COLOR)
+		self.show_bar(int(self.battle.currentDaoA.currentHP), int(self.battle.currentDaoA.HP), self.daoA_hpbar, HP_COLOR)
+		self.show_text(f"{int(self.battle.currentDaoA.currentHP)} / {int(self.battle.currentDaoA.HP)}", self.daoA_hptext, TEXT_COLOR)
+		self.show_text(f"LV: {self.battle.currentDaoA.level} {self.battle.currentDaoA.name}", self.daoA_name, TEXT_COLOR)
+		self.show_text(f"+{self.battle.initA}", self.daoA_init, TEXT_COLOR)
 
 		# Dao B
-		self.show_bar(int(battle.currentDaoB.currentHP), int(battle.currentDaoB.HP), self.daoB_hpbar, HP_COLOR)
-		self.show_text(f"{int(battle.currentDaoB.currentHP)} / {int(battle.currentDaoB.HP)}", self.daoB_hptext, TEXT_COLOR)
-		self.show_text(f"LV: {battle.currentDaoB.level} {battle.currentDaoB.name}", self.daoB_name, TEXT_COLOR)
-		self.show_text(f"+{battle.initB}", self.daoB_init, TEXT_COLOR)
+		self.show_bar(int(self.battle.currentDaoB.currentHP), int(self.battle.currentDaoB.HP), self.daoB_hpbar, HP_COLOR)
+		self.show_text(f"{int(self.battle.currentDaoB.currentHP)} / {int(self.battle.currentDaoB.HP)}", self.daoB_hptext, TEXT_COLOR)
+		self.show_text(f"LV: {self.battle.currentDaoB.level} {self.battle.currentDaoB.name}", self.daoB_name, TEXT_COLOR)
+		self.show_text(f"+{self.battle.initB}", self.daoB_init, TEXT_COLOR)
 		
-		if battle.state == Battle.DEFAULT:
-			self.show_button(self.BUTTON_SIMPLE, "Summon", TEXT_COLOR, self.fight_menu_right, battle)
-			self.show_button(self.BUTTON_SIMPLE, "Fight", TEXT_COLOR, self.fight_menu_left, battle)
+		if self.battle.state == Battle.MAIN_MENU:
+			self.show_button(self.BUTTON_SIMPLE, "Summon", TEXT_COLOR, self.fight_menu_right, self.battle)
+			self.show_button(self.BUTTON_SIMPLE, "Fight", TEXT_COLOR, self.fight_menu_left, self.battle)
 
-		elif battle.state == Battle.FIGHT_MENU:
-			self.show_button(self.BUTTON_SIMPLE, "Move A", TEXT_COLOR, self.fight_menu_up, battle)
-			self.show_button(self.BUTTON_SIMPLE, "Move B", TEXT_COLOR, self.fight_menu_left, battle)
-			self.show_button(self.BUTTON_SIMPLE, "Move C", TEXT_COLOR, self.fight_menu_right, battle)
-			self.show_button(self.BUTTON_SIMPLE, "Move D", TEXT_COLOR, self.fight_menu_down, battle)
+		elif self.battle.state == Battle.FIGHT_MENU:
+			self.show_button(self.BUTTON_SIMPLE, "Move A", TEXT_COLOR, self.fight_menu_up, self.battle)
+			self.show_button(self.BUTTON_SIMPLE, "Move B", TEXT_COLOR, self.fight_menu_left, self.battle)
+			self.show_button(self.BUTTON_SIMPLE, "Move C", TEXT_COLOR, self.fight_menu_right, self.battle)
+			self.show_button(self.BUTTON_SIMPLE, "Move D", TEXT_COLOR, self.fight_menu_down, self.battle)
 
-		elif battle.state == Battle.SUMMON_MENU:
+		elif self.battle.state == Battle.SUMMON_MENU:
 			pass # Colocar as esferas DAO 
 
-		elif battle.state == Battle.TEXT_ON_SCREEN:
+		elif self.battle.state == Battle.TEXT_ON_SCREEN:
 			# CRIAR UMA FORMA DE QUEBRAR A LINHA
 			texto_teste = "Ola tudo bem? hahahhaa Ola tudo bem? hahahhaa"
 			self.show_chatbox(texto_teste, TEXT_COLOR, self.chat_box)
+	
+	def play_intro(self):
+		if self.intro_offset <= 0:
+			self.battle.state = Battle.MAIN_MENU
+			return
+		else:
+			self.intro_offset -= WIDTH * (pygame.time.Clock().tick(FPS) / 1000) 
+			if self.intro_offset <= 0:
+				self.intro_offset = 0
+
+		top_width = WIDTH * 5/8
+		bottom_width = WIDTH * 3/8
+
+		L1 = (0 - self.intro_offset, 0 + self.intro_offset)
+		L2 = (top_width  - self.intro_offset, 0 + self.intro_offset)
+		L3 = (bottom_width - self.intro_offset, HEIGTH + self.intro_offset)
+		L4 = (0 - self.intro_offset, HEIGTH + self.intro_offset)
+		
+		R1 = (WIDTH + self.intro_offset, 0 - self.intro_offset)
+		R2 = (top_width + self.intro_offset, 0 - self.intro_offset)
+		R3 = (bottom_width + self.intro_offset, HEIGTH - self.intro_offset)
+		R4 = (WIDTH + self.intro_offset, HEIGTH - self.intro_offset)
+		
+		pygame.draw.polygon(surface= self.display_surface, color= "#4e668a", points= [L1, L2, L3])
+		pygame.draw.polygon(surface= self.display_surface, color= "#4e668a", points= [L1, L3, L4])
+
+		pygame.draw.polygon(surface= self.display_surface, color= "#854a4a", points= [R1, R2, R3])
+		pygame.draw.polygon(surface= self.display_surface, color= "#854a4a", points= [R1, R3, R4])
+
+	def play_ending(self):
+		self.display_surface.fill("black")
+
+		if self.intro_offset == WIDTH // 2:
+			self.battle.state = Battle.DEFAULT
+			return
+		else:
+			self.intro_offset += WIDTH * (pygame.time.Clock().tick(FPS) / 1000) 
+			if self.intro_offset >= WIDTH // 2:
+				self.intro_offset = WIDTH // 2
+
+		top_width = WIDTH * 5/8
+		bottom_width = WIDTH * 3/8
+
+		L1 = (0 - self.intro_offset, 0 + self.intro_offset)
+		L2 = (top_width  - self.intro_offset, 0 + self.intro_offset)
+		L3 = (bottom_width - self.intro_offset, HEIGTH + self.intro_offset)
+		L4 = (0 - self.intro_offset, HEIGTH + self.intro_offset)
+		
+		R1 = (WIDTH + self.intro_offset, 0 - self.intro_offset)
+		R2 = (top_width + self.intro_offset, 0 - self.intro_offset)
+		R3 = (bottom_width + self.intro_offset, HEIGTH - self.intro_offset)
+		R4 = (WIDTH + self.intro_offset, HEIGTH - self.intro_offset)
+		
+		pygame.draw.polygon(surface= self.display_surface, color= "#4e668a", points= [L1, L2, L3])
+		pygame.draw.polygon(surface= self.display_surface, color= "#4e668a", points= [L1, L3, L4])
+
+		pygame.draw.polygon(surface= self.display_surface, color= "#854a4a", points= [R1, R2, R3])
+		pygame.draw.polygon(surface= self.display_surface, color= "#854a4a", points= [R1, R3, R4])
 

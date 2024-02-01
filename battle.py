@@ -1,5 +1,6 @@
 import random
 from classes import Move, Dao, Effect
+from settings import WIDTH
 import copy
 
 class Battle():
@@ -10,15 +11,17 @@ class Battle():
 
     # States
     DEFAULT = 'default'
-    TEXT_ON_SCREEN = 'txt'
+    INTRO = 'itr'
+    END = 'end'
+    MAIN_MENU = 'mmn'
     FIGHT_MENU = 'fgt'
     SUMMON_MENU = 'smn'
+    TEXT_ON_SCREEN = 'txt'
 
-    def __init__(self, daoListA: list, daoListB: list):
-        # Copia a lista de daos para a batalha
-        self.battleListA: list = copy.deepcopy(daoListA)
-        self.battleListB: list = copy.deepcopy(daoListB)
-
+    def __init__(self,):
+        self.battleListA: list = []
+        self.battleListB: list = []
+        
         self.currentDaoA: Dao = None
         self.currentDaoB: Dao = None
 
@@ -27,12 +30,21 @@ class Battle():
 
         self.state = self.DEFAULT
 
-    def Start(self):
-        self.currentDaoA: Dao = self.battleListA[0]
-        self.currentDaoB: Dao = self.battleListB[0]
+    def Start(self, daoListA: list, daoListB: list):
+        if self.state == self.DEFAULT:
+            self.battleListA: list = copy.deepcopy(daoListA)
+            self.battleListB: list = copy.deepcopy(daoListB)
 
-        self.initA = 0
-        self.initB = 0
+            self.currentDaoA: Dao = self.battleListA[0]
+            self.currentDaoB: Dao = self.battleListB[0]
+
+            self.initA = 0
+            self.initB = 0
+
+            self.state = Battle.INTRO
+
+    def End(self):
+        self.state = Battle.END
 
     def Turn(self, actionA, actionB): # Action can be SUMMON or a number from 0 to 3 (move index)
         # Check the actions

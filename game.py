@@ -18,7 +18,6 @@ class Game:
 
         pygame.display.set_caption("Dao's Guide")
 
-
         self.battleObject = Battle()
         self.state: int = 0
 
@@ -37,14 +36,12 @@ class Game:
                     pygame.quit()
                     sys.exit()
 
-                # if event.type == pygame.KEYDOWN and event.key == pygame.K_F11:
-                #     pygame.display.toggle_fullscreen()
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_F11:
+                    pygame.display.toggle_fullscreen()
 
             # Must Run
             self.Update_status()
             battleUI.run()
-
-            # Debug
 
             # Update screen
             pygame.display.update()

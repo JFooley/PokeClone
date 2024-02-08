@@ -1,5 +1,5 @@
 import random
-from classes import Move, Dao, Effect
+from classes import Move, Dao, Effect, Guider
 from settings import WIDTH
 import copy
 
@@ -12,13 +12,16 @@ class Battle():
     # States
     DEFAULT = 'default'
     INTRO = 'itr'
-    END = 'end'
     MAIN_MENU = 'mmn'
     FIGHT_MENU = 'fgt'
     SUMMON_MENU = 'smn'
     TEXT_ON_SCREEN = 'txt'
+    END = 'end'
 
-    def __init__(self,):
+
+    def __init__(self):
+        self.guiderA = None
+        self.guiderB = None
         self.battleListA: list = []
         self.battleListB: list = []
         
@@ -30,10 +33,10 @@ class Battle():
 
         self.state = self.DEFAULT
 
-    def Start(self, daoListA: list, daoListB: list):
+    def Start(self, guiderA: Guider, guiderB: Guider):
         if self.state == self.DEFAULT:
-            self.battleListA: list = copy.deepcopy(daoListA)
-            self.battleListB: list = copy.deepcopy(daoListB)
+            self.battleListA = copy.deepcopy(guiderA.daos_list)
+            self.battleListB = copy.deepcopy(guiderB.daos_list)
 
             self.currentDaoA: Dao = self.battleListA[0]
             self.currentDaoB: Dao = self.battleListB[0]
@@ -142,11 +145,11 @@ class Battle():
 
         # Check move type and return the damage
         if move.kind == "Physical":
-            damage = (((atacker.level + 5)/125) * (atacker.STR/defender.RES) * move.power * STAB * CRIT * float(effeChart[move.type][defender.type1]) * float(effeChart[move.type][defender.type2] if defender.type2 else 1))
+            damage = (((atacker.level + 5)/125) * (atacker.STR/defender.RES) * move.power * STAB * CRIT * float(effeChart[move.type][defender.type1]) * float(effeChart[move.type][defender.type2] if defender.type2 else 1) + 2)
             return int(round(damage))
         
         elif move.kind == "Special":
-            damage = (((atacker.level + 5)/125) * (atacker.POW /defender.MRES) * move.power * STAB * CRIT * float(effeChart[move.type][defender.type1]) * float(effeChart[move.type][defender.type2] if defender.type2 else 1)) 
+            damage = (((atacker.level + 5)/125) * (atacker.POW /defender.MRES) * move.power * STAB * CRIT * float(effeChart[move.type][defender.type1]) * float(effeChart[move.type][defender.type2] if defender.type2 else 1) + 2) 
             return int(round(damage))
         
         else:

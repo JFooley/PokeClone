@@ -93,3 +93,22 @@ class Move:
 		self.uses = uses
 		self.level = level
 		self.effect = effect
+
+class  Guider:
+    def __init__(self, name, level, inventory: dict, daos_list: list):
+        self.name = name
+        self.level = level
+        self.inventory = inventory
+        self.daos_list = daos_list if daos_list != None else []
+
+    def Raise_level(self):
+        self.level += 1
+
+    def Insert_dao(self, dao: Dao):
+        self.daos_list.append(dao)
+
+    def Generate_daos(self, archiveName,  daos_ID_list):
+        from utils import getDao
+        for ID in daos_ID_list:
+            single_dao = getDao(archiveName= archiveName, ID= ID)
+            self.daos_list.append(single_dao)

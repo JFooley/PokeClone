@@ -1,5 +1,5 @@
 import csv
-from classes import *
+from classes import Dao, Move
 
 def generateMoves(archiveName: str):
     moveChart = {}

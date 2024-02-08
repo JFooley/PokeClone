@@ -1,5 +1,5 @@
 import os
-from battle import 
+from battle import *
 from utils import *
 
 def main():

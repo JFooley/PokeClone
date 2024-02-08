@@ -1,8 +1,9 @@
 import pygame, sys
 from settings import *
-from ui import BattleUI
+from battle_scene import BattleUI
 from battle import Battle
 from utils import *
+from classes import Guider
 
 class Game:
     # States
@@ -13,12 +14,14 @@ class Game:
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode((WIDTH, HEIGTH))
-        self.clock = pygame.time.Clock()
+        self.clock = pygame.time.Clock()   
 
         pygame.display.set_caption("Dao's Guide")
 
         self.battleObject = Battle()
         self.state: int = 0
+
+        self.player = Guider("Player", 0, {}, [])
 
     def Update_status(self):
         if self.battleObject.state != Battle.DEFAULT:

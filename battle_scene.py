@@ -1,8 +1,9 @@
-import pygame, os
+import pygame, os, copy
 from pygame import Rect
 from settings import * 
 from battle import Battle
 from utils import *
+from classes import Guider
 
 class BattleUI:
 	# buttons
@@ -18,6 +19,7 @@ class BattleUI:
 		# Variables
 		self.intro_offset = (WIDTH // 2)
 		self.time_stamp = 0
+		was_pressed = []
 	
 		# general 
 		self.display_surface = pygame.display.get_surface()
@@ -52,21 +54,10 @@ class BattleUI:
 		self.daos = generateDaos(archiveName= os.path.join("Data", "Daos.csv"))
 
 	def run(self):
-		####### Test ########      
 		keys = pygame.key.get_pressed()
-		if self.game.state == 0 and keys[pygame.K_SPACE]:
-			daoA1 = self.daos['3']
-			daoA2 = self.daos['10']
-			daoA3 = self.daos['15']
-			daoB1 = self.daos['6']
-			daoB2 = self.daos['20']
-			daoB3 = self.daos['30']
-
-			self.battle.Start([daoA1, daoA2, daoA3], [daoB1, daoB2, daoB3])
-		####### Test ########   
 
 		if self.battle.state == Battle.DEFAULT:
-			return
+			pass
 		elif self.battle.state == Battle.INTRO:
 			self.play_intro()
 		elif self.battle.state == Battle.END:
@@ -74,21 +65,65 @@ class BattleUI:
 		else:
 			self.display()
 
+			#### Vai para input() ####
+			if self.game.state == 1 and self.battle.state == Battle.MAIN_MENU:
+				if keys[pygame.K_LEFT] and not self.was_pressed[pygame.K_LEFT]:
+					self.battle.state = Battle.FIGHT_MENU
+				elif keys[pygame.K_RIGHT] and not self.was_pressed[pygame.K_RIGHT]:
+					self.battle.state = Battle.SUMMON_MENU
 
-			####### Test ######## 
-			# self.battle.currentDaoA.currentHP -= 30 * (self.clock.tick(FPS) / 1000)
+			elif self.game.state == 1 and self.battle.state == Battle.FIGHT_MENU:
+				####### Test #######
+				if keys[pygame.K_UP] and not self.was_pressed[pygame.K_UP]:
+					self.battle.state = Battle.TEXT_ON_SCREEN
+				if keys[pygame.K_DOWN] and not self.was_pressed[pygame.K_DOWN]:
+					self.battle.state = Battle.TEXT_ON_SCREEN
+				if keys[pygame.K_LEFT] and not self.was_pressed[pygame.K_LEFT]:
+					self.battle.state = Battle.TEXT_ON_SCREEN
+				if keys[pygame.K_RIGHT] and not self.was_pressed[pygame.K_RIGHT]:
+					self.battle.state = Battle.TEXT_ON_SCREEN
+				####### Test #######
+					
+			elif self.game.state == 1 and self.battle.state == Battle.TEXT_ON_SCREEN:
+				####### Test #######
+				if keys[pygame.K_DOWN] and not self.was_pressed[pygame.K_DOWN]:
+					self.battle.state = Battle.MAIN_MENU
+				####### Test #######
+					
+			elif self.game.state == 1 and self.battle.state == Battle.SUMMON_MENU:
+				####### Test #######
+				if keys[pygame.K_DOWN] and not self.was_pressed[pygame.K_DOWN]:
+					self.battle.state = Battle.MAIN_MENU
+				####### Test #######
+			#### Vai para input() ####
 
-			if self.game.state == 1 and keys[pygame.K_LEFT]:
-				self.battle.Summon(Battle.YOU, 2)
-				self.battle.initA += 1
-				self.battle.state = Battle.FIGHT_MENU
+		####### Test ########
+		if self.game.state == 0 and keys[pygame.K_SPACE] and not self.was_pressed[pygame.K_SPACE]:
+			daoA1 = self.daos['3']
+			daoA2 = self.daos['10']
+			daoA3 = self.daos['15']
+			self.game.player.Insert_dao(daoA1)
+			self.game.player.Insert_dao(daoA2)
+			self.game.player.Insert_dao(daoA3)
 
-			if self.game.state == 1 and keys[pygame.K_RIGHT]:
-				self.battle.state = Battle.TEXT_ON_SCREEN
+			daoB1 = self.daos['6']
+			daoB2 = self.daos['20']
+			daoB3 = self.daos['30']
+			enemy = Guider("Enemy", 0, {}, [daoB1, daoB2, daoB3])
 
-			elif self.game.state == 1 and keys[pygame.K_DOWN]:
-				self.battle.End()
-			####### Test ######## 
+			self.battle.Start(self.game.player, enemy)
+
+		if self.game.state == 1 and keys[pygame.K_UP] and not self.was_pressed[pygame.K_UP]:
+			self.battle.initA += 1 
+		elif self.game.state == 1 and keys[pygame.K_DOWN] and not self.was_pressed[pygame.K_DOWN]:
+			self.battle.initA -= 1 if self.battle.initA > 0 else 0
+
+		if self.game.state == 1 and keys[pygame.K_SPACE] and not self.was_pressed[pygame.K_SPACE]:
+			self.battle.End()
+		####### Test ######## 
+		
+		# Copy the keys list to check in the next frame if it was pressed
+		self.was_pressed = copy.deepcopy(keys)
 
 	def show_bar(self, current, max_amount, bg_rect, color):
 		# draw bg 
@@ -99,7 +134,6 @@ class BattleUI:
 		current_rect = bg_rect.copy()
 		current_rect.width = bg_rect.width * ratio
 
-
 		# drawing the bar
 		pygame.draw.rect(self.display_surface, color, current_rect)
 		# pygame.draw.rect(self.display_surface, UI_BORDER_COLOR, bg_rect, 3)
@@ -109,15 +143,20 @@ class BattleUI:
 		text_surface = self.font_medium.render(text, True, color)
 		self.display_surface.blit(text_surface, rect)
 
-	def show_button(self, type, text, textcolor, rect: Rect, battle: Battle):
+	def show_button(self, type, text, textcolor, rect: Rect, battle: Battle, index: int):
 		# draw bg 
 		pygame.draw.rect(self.display_surface, UI_BG_COLOR, rect, border_radius= int(BUTTON_HEIGTH // 2))
+		
+		padding_X = BUTTON_HEIGTH // 2
+		padding_Y = 5
+		text_offset = pygame.Rect((rect.left + padding_X), (rect.top + padding_Y), BUTTON_WIDTH, BUTTON_HEIGTH)
 
 		# draw text
 		if type == self.BUTTON_SIMPLE:
-			padding_X = BUTTON_HEIGTH // 2
-			padding_Y = 5
-			text_offset = pygame.Rect((rect.left + padding_X), (rect.top + padding_Y), BUTTON_WIDTH, BUTTON_HEIGTH)
+			text_surface = self.font_medium.render(text, True, textcolor)
+			self.display_surface.blit(text_surface, text_offset)
+
+		if type == self.BUTTON_MOVE:
 			text_surface = self.font_medium.render(text, True, textcolor)
 			self.display_surface.blit(text_surface, text_offset)
 
@@ -165,14 +204,21 @@ class BattleUI:
 		self.show_text(f"+{self.battle.initB}", self.daoB_init, TEXT_COLOR)
 		
 		if self.battle.state == Battle.MAIN_MENU:
-			self.show_button(self.BUTTON_SIMPLE, "Summon", TEXT_COLOR, self.fight_menu_right, self.battle)
-			self.show_button(self.BUTTON_SIMPLE, "Fight", TEXT_COLOR, self.fight_menu_left, self.battle)
+			self.show_button(self.BUTTON_SIMPLE, "Summon", TEXT_COLOR, self.fight_menu_right, self.battle, 0)
+			self.show_button(self.BUTTON_SIMPLE, "Fight", TEXT_COLOR, self.fight_menu_left, self.battle, 0)
 
 		elif self.battle.state == Battle.FIGHT_MENU:
-			self.show_button(self.BUTTON_SIMPLE, "Move A", TEXT_COLOR, self.fight_menu_up, self.battle)
-			self.show_button(self.BUTTON_SIMPLE, "Move B", TEXT_COLOR, self.fight_menu_left, self.battle)
-			self.show_button(self.BUTTON_SIMPLE, "Move C", TEXT_COLOR, self.fight_menu_right, self.battle)
-			self.show_button(self.BUTTON_SIMPLE, "Move D", TEXT_COLOR, self.fight_menu_down, self.battle)
+			moveA = self.battle.currentDaoA.moves[0].name if 0 < len(self.battle.currentDaoA.moves) else "Move A"
+			self.show_button(self.BUTTON_SIMPLE, moveA, TEXT_COLOR, self.fight_menu_up, self.battle, 0)
+
+			moveB = self.battle.currentDaoA.moves[1].name if 0 < len(self.battle.currentDaoA.moves) else "Move B"
+			self.show_button(self.BUTTON_SIMPLE, moveB, TEXT_COLOR, self.fight_menu_left, self.battle, 0)
+
+			moveC = self.battle.currentDaoA.moves[2].name if 0 < len(self.battle.currentDaoA.moves) else "Move C"
+			self.show_button(self.BUTTON_SIMPLE, moveC, TEXT_COLOR, self.fight_menu_right, self.battle, 0)
+
+			moveD = self.battle.currentDaoA.moves[3].name if 0 < len(self.battle.currentDaoA.moves) else "Move D"
+			self.show_button(self.BUTTON_SIMPLE, moveD, TEXT_COLOR, self.fight_menu_down, self.battle, 0)
 
 		elif self.battle.state == Battle.SUMMON_MENU:
 			pass # Colocar as esferas DAO 

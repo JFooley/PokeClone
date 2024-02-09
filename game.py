@@ -4,6 +4,7 @@ from battle_scene import BattleUI
 from battle import Battle
 from utils import *
 from classes import Guider
+from input import Input
 
 class Game:
     # States
@@ -14,8 +15,8 @@ class Game:
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode((WIDTH, HEIGTH))
-        self.clock = pygame.time.Clock()   
-
+        self.clock = pygame.time.Clock()
+        
         pygame.display.set_caption("Dao's Guide")
 
         self.battleObject = Battle()
@@ -31,6 +32,7 @@ class Game:
 
     def run(self):
         battleUI = BattleUI(self.battleObject, self)
+        Input().initialize(Input.KEYBOARD)
 
         while True: 
             for event in pygame.event.get():
@@ -45,7 +47,8 @@ class Game:
             self.Update_status()
             battleUI.run()
 
-            # Update screen
+            # Finnally
+            Input().update()
             pygame.display.update()
             self.clock.tick(FPS)
 

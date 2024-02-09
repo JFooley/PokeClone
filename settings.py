@@ -72,4 +72,5 @@ TEXT_COLOR = "white" # '#000123'
 
 # ui colors
 HP_COLOR = '#e00d42'
+HP_SHADOW_COLOR = "#ffb73b"
 UI_BORDER_COLOR_ACTIVE = 'black'

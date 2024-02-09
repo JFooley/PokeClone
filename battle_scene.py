@@ -4,6 +4,7 @@ from settings import *
 from battle import Battle
 from utils import *
 from classes import Guider
+from input import Input
 
 class BattleUI:
 	# buttons
@@ -15,11 +16,11 @@ class BattleUI:
 		self.game = game
 		self.battle: Battle = battleObject
 		self.clock = pygame.time.Clock()
-
+ 
 		# Variables
 		self.intro_offset = (WIDTH // 2)
 		self.time_stamp = 0
-		was_pressed = []
+		self.was_pressed = []
 	
 		# general 
 		self.display_surface = pygame.display.get_surface()
@@ -30,6 +31,8 @@ class BattleUI:
 		self.daoB_hpbar = pygame.Rect(HP_B_POS_X, HP_B_POS_Y, HP_BAR_WIDTH, BAR_HEIGHT)
 		self.daoA_hptext = pygame.Rect(HPTEXT_A_POS_X, HPTEXT_A_POS_Y, HP_BAR_WIDTH, BAR_HEIGHT)
 		self.daoB_hptext = pygame.Rect(HPTEXT_B_POS_X, HPTEXT_B_POS_Y, HP_BAR_WIDTH, BAR_HEIGHT)
+		self.daoA_hpsize = 0
+		self.daoB_hpsize = 0
 
 		# info text setup
 		self.daoA_name = pygame.Rect(NAMETEXT_A_POS_X, NAMETEXT_A_POS_Y, HP_BAR_WIDTH, BAR_HEIGHT)
@@ -54,8 +57,6 @@ class BattleUI:
 		self.daos = generateDaos(archiveName= os.path.join("Data", "Daos.csv"))
 
 	def run(self):
-		keys = pygame.key.get_pressed()
-
 		if self.battle.state == Battle.DEFAULT:
 			pass
 		elif self.battle.state == Battle.INTRO:
@@ -65,40 +66,40 @@ class BattleUI:
 		else:
 			self.display()
 
-			#### Vai para input() ####
+			#### Vai para behaviour() ####
 			if self.game.state == 1 and self.battle.state == Battle.MAIN_MENU:
-				if keys[pygame.K_LEFT] and not self.was_pressed[pygame.K_LEFT]:
+				if Input().key_down(key_code= Input().X):
 					self.battle.state = Battle.FIGHT_MENU
-				elif keys[pygame.K_RIGHT] and not self.was_pressed[pygame.K_RIGHT]:
+				elif Input().key_down(key_code= Input().B):
 					self.battle.state = Battle.SUMMON_MENU
 
 			elif self.game.state == 1 and self.battle.state == Battle.FIGHT_MENU:
 				####### Test #######
-				if keys[pygame.K_UP] and not self.was_pressed[pygame.K_UP]:
+				if Input().key_down(key_code= Input().Y):
 					self.battle.state = Battle.TEXT_ON_SCREEN
-				if keys[pygame.K_DOWN] and not self.was_pressed[pygame.K_DOWN]:
+				if Input().key_down(key_code= Input().A):
 					self.battle.state = Battle.TEXT_ON_SCREEN
-				if keys[pygame.K_LEFT] and not self.was_pressed[pygame.K_LEFT]:
+				if Input().key_down(key_code= Input().X):
 					self.battle.state = Battle.TEXT_ON_SCREEN
-				if keys[pygame.K_RIGHT] and not self.was_pressed[pygame.K_RIGHT]:
+				if Input().key_down(key_code= Input().B):
 					self.battle.state = Battle.TEXT_ON_SCREEN
 				####### Test #######
 					
 			elif self.game.state == 1 and self.battle.state == Battle.TEXT_ON_SCREEN:
 				####### Test #######
-				if keys[pygame.K_DOWN] and not self.was_pressed[pygame.K_DOWN]:
+				if Input().key_down(key_code= Input().A):
 					self.battle.state = Battle.MAIN_MENU
 				####### Test #######
 					
 			elif self.game.state == 1 and self.battle.state == Battle.SUMMON_MENU:
 				####### Test #######
-				if keys[pygame.K_DOWN] and not self.was_pressed[pygame.K_DOWN]:
+				if Input().key_down(key_code= Input().A):
 					self.battle.state = Battle.MAIN_MENU
 				####### Test #######
-			#### Vai para input() ####
+			#### Vai para behaviour() ####
 
 		####### Test ########
-		if self.game.state == 0 and keys[pygame.K_SPACE] and not self.was_pressed[pygame.K_SPACE]:
+		if self.game.state == 0 and Input().key_down(key_code= Input().start):
 			daoA1 = self.daos['3']
 			daoA2 = self.daos['10']
 			daoA3 = self.daos['15']
@@ -113,30 +114,31 @@ class BattleUI:
 
 			self.battle.Start(self.game.player, enemy)
 
-		if self.game.state == 1 and keys[pygame.K_UP] and not self.was_pressed[pygame.K_UP]:
-			self.battle.initA += 1 
-		elif self.game.state == 1 and keys[pygame.K_DOWN] and not self.was_pressed[pygame.K_DOWN]:
-			self.battle.initA -= 1 if self.battle.initA > 0 else 0
+		if self.game.state == 1 and Input().key_down(key_code= Input().up):
+			self.battle.currentDaoA.currentHP += 30
+		elif self.game.state == 1 and Input().key_down(key_code= Input().down):
+			self.battle.currentDaoA.currentHP -= 45
 
-		if self.game.state == 1 and keys[pygame.K_SPACE] and not self.was_pressed[pygame.K_SPACE]:
+		if self.game.state == 1 and Input().key_down(key_code= Input().start):
 			self.battle.End()
 		####### Test ######## 
-		
-		# Copy the keys list to check in the next frame if it was pressed
-		self.was_pressed = copy.deepcopy(keys)
 
-	def show_bar(self, current, max_amount, bg_rect, color):
+	def show_bar(self, current, max_amount, shadow_value, bg_rect: Rect, color, shadow_color):
 		# draw bg 
 		pygame.draw.rect(self.display_surface,UI_BG_COLOR,bg_rect)
 
+
 		# converting stat to pixel
-		ratio = current / max_amount
+		ratio_curret = max(0, min(current / max_amount, 1))
+		ratio_shadow = max(0, min(shadow_value / max_amount, 1))
 		current_rect = bg_rect.copy()
-		current_rect.width = bg_rect.width * ratio
+		shadow_rect = bg_rect.copy()
+		current_rect.width = bg_rect.width * ratio_curret
+		shadow_rect.width = bg_rect.width * ratio_shadow
 
 		# drawing the bar
+		pygame.draw.rect(self.display_surface, shadow_color, shadow_rect)
 		pygame.draw.rect(self.display_surface, color, current_rect)
-		# pygame.draw.rect(self.display_surface, UI_BORDER_COLOR, bg_rect, 3)
 
 	def show_text(self, text, rect, color):
 		# drawning the text
@@ -171,6 +173,9 @@ class BattleUI:
 		text_surface = self.font_medium.render(text, True, textcolor)
 		self.display_surface.blit(text_surface, text_offset)
 
+	def show_sprite(self, sprit):
+		pass
+
 	def display(self):
 		top_width = WIDTH * 5/8
 		bottom_width = WIDTH * 3/8
@@ -191,14 +196,16 @@ class BattleUI:
 		pygame.draw.polygon(surface= self.display_surface, color= "#854a4a", points= [R1, R2, R3])
 		pygame.draw.polygon(surface= self.display_surface, color= "#854a4a", points= [R1, R3, R4])
 
-		# Dao A
-		self.show_bar(int(self.battle.currentDaoA.currentHP), int(self.battle.currentDaoA.HP), self.daoA_hpbar, HP_COLOR)
+		# Dao A bar
+		self.daoA_hpsize = self.daoA_hpsize + (self.battle.currentDaoA.currentHP - self.daoA_hpsize) * (0.05)
+		self.show_bar(int(self.battle.currentDaoA.currentHP), int(self.battle.currentDaoA.HP), self.daoA_hpsize, self.daoA_hpbar, HP_COLOR, HP_SHADOW_COLOR)
 		self.show_text(f"{int(self.battle.currentDaoA.currentHP)} / {int(self.battle.currentDaoA.HP)}", self.daoA_hptext, TEXT_COLOR)
 		self.show_text(f"LV: {self.battle.currentDaoA.level} {self.battle.currentDaoA.name}", self.daoA_name, TEXT_COLOR)
 		self.show_text(f"+{self.battle.initA}", self.daoA_init, TEXT_COLOR)
 
-		# Dao B
-		self.show_bar(int(self.battle.currentDaoB.currentHP), int(self.battle.currentDaoB.HP), self.daoB_hpbar, HP_COLOR)
+		# Dao B bar
+		self.daoB_hpsize = self.daoB_hpsize + (self.battle.currentDaoB.currentHP - self.daoB_hpsize) * (0.05)
+		self.show_bar(int(self.battle.currentDaoB.currentHP), int(self.battle.currentDaoB.HP), self.daoB_hpsize, self.daoB_hpbar, HP_COLOR, HP_SHADOW_COLOR)
 		self.show_text(f"{int(self.battle.currentDaoB.currentHP)} / {int(self.battle.currentDaoB.HP)}", self.daoB_hptext, TEXT_COLOR)
 		self.show_text(f"LV: {self.battle.currentDaoB.level} {self.battle.currentDaoB.name}", self.daoB_name, TEXT_COLOR)
 		self.show_text(f"+{self.battle.initB}", self.daoB_init, TEXT_COLOR)

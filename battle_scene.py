@@ -7,11 +7,6 @@ from classes import Guider
 from input import Input
 
 class BattleUI:
-	# buttons
-	BUTTON_MOVE = "BM"
-	BUTTON_SIMPLE = "BS"
-	BUTTON_DAO = "BD"
-
 	def __init__(self, battleObject: Battle, game):
 		self.game = game
 		self.battle: Battle = battleObject
@@ -24,7 +19,7 @@ class BattleUI:
 	
 		# general 
 		self.display_surface = pygame.display.get_surface()
-		self.font_medium = pygame.font.Font(UI_FONT,UI_FONT_SIZE)
+		self.font_medium = pygame.font.Font(UI_FONT, UI_FONT_SIZE)
 
 		# hp bar setup 
 		self.daoA_hpbar = pygame.Rect(HP_A_POS_X, HP_A_POS_Y, HP_BAR_WIDTH, BAR_HEIGHT)
@@ -42,13 +37,14 @@ class BattleUI:
 		self.daoA_init = pygame.Rect(INITTEXT_A_POS_X, INITTEXT_A_POS_Y, HP_BAR_WIDTH, BAR_HEIGHT)
 		self.daoB_init = pygame.Rect(INITTEXT_B_POS_X, INITTEXT_B_POS_Y, HP_BAR_WIDTH, BAR_HEIGHT)
 
-		# menu buttons setup
-		self.fight_menu_up = pygame.Rect(BUTTON_UP_X, BUTTON_UP_Y, BUTTON_WIDTH, BUTTON_HEIGTH)
-		self.fight_menu_down = pygame.Rect(BUTTON_DOWN_X, BUTTON_DOWN_Y, BUTTON_WIDTH, BUTTON_HEIGTH)
-		self.fight_menu_left = pygame.Rect(BUTTON_LEFT_X, BUTTON_LEFT_Y, BUTTON_WIDTH, BUTTON_HEIGTH)
-		self.fight_menu_right = pygame.Rect(BUTTON_RIGHT_X, BUTTON_RIGHT_Y, BUTTON_WIDTH, BUTTON_HEIGTH)
+		# buttons setup
+		self.button_rect_Y = pygame.Rect(BUTTON_BANNER_Y_X, BUTTON_BANNER_Y_Y, BUTTON_WIDTH, BUTTON_HEIGTH)
+		self.button_rect_A = pygame.Rect(BUTTON_BANNER_A_X, BUTTON_BANNER_A_Y, BUTTON_WIDTH, BUTTON_HEIGTH)
+		self.button_rect_X = pygame.Rect(BUTTON_BANNER_X_X, BUTTON_BANNER_X_Y, BUTTON_WIDTH, BUTTON_HEIGTH)
+		self.button_rect_B = pygame.Rect(BUTTON_BANNER_B_X, BUTTON_BANNER_B_Y, BUTTON_WIDTH, BUTTON_HEIGTH)
 
-		# Summon buttons setup
+		self.button_rect_L = pygame.Rect(BUTTON_BANNER_L_X, BUTTON_BANNER_L_Y, BUTTON_WIDTH, BUTTON_HEIGTH)
+		self.button_rect_R = pygame.Rect(BUTTON_BANNER_R_X, BUTTON_BANNER_R_Y, BUTTON_WIDTH, BUTTON_HEIGTH)
 
 		# Chat text setup
 		self.chat_box = pygame.Rect(CHATBOX_POS_X, CHATBOX_POS_Y, CHATBOX_WIDTH, CHATBOX_HEIGTH)
@@ -125,8 +121,7 @@ class BattleUI:
 
 	def show_bar(self, current, max_amount, shadow_value, bg_rect: Rect, color, shadow_color):
 		# draw bg 
-		pygame.draw.rect(self.display_surface,UI_BG_COLOR,bg_rect)
-
+		pygame.draw.rect(self.display_surface, UI_BG_COLOR, bg_rect)
 
 		# converting stat to pixel
 		ratio_curret = max(0, min(current / max_amount, 1))
@@ -145,22 +140,45 @@ class BattleUI:
 		text_surface = self.font_medium.render(text, True, color)
 		self.display_surface.blit(text_surface, rect)
 
-	def show_button(self, type, text, textcolor, rect: Rect, battle: Battle, index: int):
+	def show_button(self, text, textcolor, rect: Rect, l_radius, r_radius):
 		# draw bg 
-		pygame.draw.rect(self.display_surface, UI_BG_COLOR, rect, border_radius= int(BUTTON_HEIGTH // 2))
+		pygame.draw.rect(self.display_surface, UI_BG_COLOR, rect, 
+				   border_top_left_radius= l_radius, 
+				   border_bottom_left_radius= l_radius,
+				   border_top_right_radius= r_radius,
+				   border_bottom_right_radius= r_radius)
 		
-		padding_X = BUTTON_HEIGTH // 2
-		padding_Y = 5
-		text_offset = pygame.Rect((rect.left + padding_X), (rect.top + padding_Y), BUTTON_WIDTH, BUTTON_HEIGTH)
+		# Text offset
+		text_surface = self.font_medium.render(text, True, textcolor)
+
+		padding_X = text_surface.get_rect().width // 2
+		padding_Y = text_surface.get_rect().height // 2
+		
+		text_rect = pygame.Rect((rect.centerx - padding_X), (rect.centery - padding_Y), BUTTON_WIDTH, BUTTON_HEIGTH)
 
 		# draw text
-		if type == self.BUTTON_SIMPLE:
-			text_surface = self.font_medium.render(text, True, textcolor)
-			self.display_surface.blit(text_surface, text_offset)
+		self.display_surface.blit(text_surface, text_rect)
 
-		if type == self.BUTTON_MOVE:
-			text_surface = self.font_medium.render(text, True, textcolor)
-			self.display_surface.blit(text_surface, text_offset)
+	def show_button_UI(self, text, color, pos_X, pos_Y, l_radius, r_radius):
+		rect = pygame.Rect(pos_X, pos_Y, BUTTON_HEIGTH, BUTTON_HEIGTH)
+
+		# Draw bg
+		pygame.draw.rect(self.display_surface, color, rect,
+			border_top_left_radius= l_radius, 
+			border_bottom_left_radius= l_radius, 
+			border_top_right_radius= r_radius, 
+			border_bottom_right_radius= r_radius)
+		
+		# Text offset
+		text_surface = self.font_medium.render(text, True, UI_BG_COLOR)
+
+		padding_X = text_surface.get_rect().width // 2
+		padding_Y = text_surface.get_rect().height // 2
+		
+		text_rect = pygame.Rect((rect.centerx - padding_X), (rect.centery - padding_Y), BUTTON_HEIGTH, BUTTON_HEIGTH)
+
+		# draw text
+		self.display_surface.blit(text_surface, text_rect)
 
 	def show_chatbox(self, text, textcolor, rect: Rect):
 		# draw bg
@@ -173,10 +191,8 @@ class BattleUI:
 		text_surface = self.font_medium.render(text, True, textcolor)
 		self.display_surface.blit(text_surface, text_offset)
 
-	def show_sprite(self, sprit):
-		pass
-
 	def display(self):
+		# Background
 		top_width = WIDTH * 5/8
 		bottom_width = WIDTH * 3/8
 
@@ -196,39 +212,62 @@ class BattleUI:
 		pygame.draw.polygon(surface= self.display_surface, color= "#854a4a", points= [R1, R2, R3])
 		pygame.draw.polygon(surface= self.display_surface, color= "#854a4a", points= [R1, R3, R4])
 
-		# Dao A bar
+		# Life bars
 		self.daoA_hpsize = self.daoA_hpsize + (self.battle.currentDaoA.currentHP - self.daoA_hpsize) * (0.05)
 		self.show_bar(int(self.battle.currentDaoA.currentHP), int(self.battle.currentDaoA.HP), self.daoA_hpsize, self.daoA_hpbar, HP_COLOR, HP_SHADOW_COLOR)
 		self.show_text(f"{int(self.battle.currentDaoA.currentHP)} / {int(self.battle.currentDaoA.HP)}", self.daoA_hptext, TEXT_COLOR)
 		self.show_text(f"LV: {self.battle.currentDaoA.level} {self.battle.currentDaoA.name}", self.daoA_name, TEXT_COLOR)
 		self.show_text(f"+{self.battle.initA}", self.daoA_init, TEXT_COLOR)
 
-		# Dao B bar
 		self.daoB_hpsize = self.daoB_hpsize + (self.battle.currentDaoB.currentHP - self.daoB_hpsize) * (0.05)
 		self.show_bar(int(self.battle.currentDaoB.currentHP), int(self.battle.currentDaoB.HP), self.daoB_hpsize, self.daoB_hpbar, HP_COLOR, HP_SHADOW_COLOR)
 		self.show_text(f"{int(self.battle.currentDaoB.currentHP)} / {int(self.battle.currentDaoB.HP)}", self.daoB_hptext, TEXT_COLOR)
 		self.show_text(f"LV: {self.battle.currentDaoB.level} {self.battle.currentDaoB.name}", self.daoB_name, TEXT_COLOR)
 		self.show_text(f"+{self.battle.initB}", self.daoB_init, TEXT_COLOR)
-		
+
+		# Situacional UI
 		if self.battle.state == Battle.MAIN_MENU:
-			self.show_button(self.BUTTON_SIMPLE, "Summon", TEXT_COLOR, self.fight_menu_right, self.battle, 0)
-			self.show_button(self.BUTTON_SIMPLE, "Fight", TEXT_COLOR, self.fight_menu_left, self.battle, 0)
+			self.show_button_UI("B", ABXY_COLOR, BUTTON_B_X, BUTTON_B_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			self.show_button_UI("X", ABXY_COLOR, BUTTON_X_X, BUTTON_X_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+
+			self.show_button("Summon", TEXT_COLOR, self.button_rect_B, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			self.show_button("Fight", TEXT_COLOR, self.button_rect_X, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 
 		elif self.battle.state == Battle.FIGHT_MENU:
+			self.show_button_UI("A", ABXY_COLOR, BUTTON_A_X, BUTTON_A_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			self.show_button_UI("B", ABXY_COLOR, BUTTON_B_X, BUTTON_B_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			self.show_button_UI("X", ABXY_COLOR, BUTTON_X_X, BUTTON_X_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			self.show_button_UI("Y", ABXY_COLOR, BUTTON_Y_X, BUTTON_Y_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			
 			moveA = self.battle.currentDaoA.moves[0].name if 0 < len(self.battle.currentDaoA.moves) else "Move A"
-			self.show_button(self.BUTTON_SIMPLE, moveA, TEXT_COLOR, self.fight_menu_up, self.battle, 0)
+			self.show_button(moveA, TEXT_COLOR, self.button_rect_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 
 			moveB = self.battle.currentDaoA.moves[1].name if 0 < len(self.battle.currentDaoA.moves) else "Move B"
-			self.show_button(self.BUTTON_SIMPLE, moveB, TEXT_COLOR, self.fight_menu_left, self.battle, 0)
+			self.show_button(moveB, TEXT_COLOR, self.button_rect_X, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 
 			moveC = self.battle.currentDaoA.moves[2].name if 0 < len(self.battle.currentDaoA.moves) else "Move C"
-			self.show_button(self.BUTTON_SIMPLE, moveC, TEXT_COLOR, self.fight_menu_right, self.battle, 0)
+			self.show_button(moveC, TEXT_COLOR, self.button_rect_B, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 
 			moveD = self.battle.currentDaoA.moves[3].name if 0 < len(self.battle.currentDaoA.moves) else "Move D"
-			self.show_button(self.BUTTON_SIMPLE, moveD, TEXT_COLOR, self.fight_menu_down, self.battle, 0)
+			self.show_button(moveD, TEXT_COLOR, self.button_rect_A, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 
 		elif self.battle.state == Battle.SUMMON_MENU:
-			pass # Colocar as esferas DAO 
+			dao_A = self.battle.battleListA[0].name if len(self.battle.battleListA) > 0 else "- Vazio -"
+			self.show_button_UI("A", ABXY_COLOR, BUTTON_A_X, BUTTON_A_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			self.show_button(dao_A, TEXT_COLOR, self.button_rect_A, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+
+			
+			self.show_button_UI("B", ABXY_COLOR, BUTTON_B_X, BUTTON_B_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			self.show_button_UI("X", ABXY_COLOR, BUTTON_X_X, BUTTON_X_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			self.show_button_UI("Y", ABXY_COLOR, BUTTON_Y_X, BUTTON_Y_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			self.show_button_UI("L", ABXY_COLOR, BUTTON_L_X, BUTTON_L_Y, 0, BUTTON_ABXY_RADIUS)
+			self.show_button_UI("R", ABXY_COLOR, BUTTON_R_X, BUTTON_R_Y, BUTTON_ABXY_RADIUS, 0)
+
+			self.show_button("Dao 2", TEXT_COLOR, self.button_rect_B, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			self.show_button("Dao 3", TEXT_COLOR, self.button_rect_X, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			self.show_button("Dao 4", TEXT_COLOR, self.button_rect_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			self.show_button("Dao 5", TEXT_COLOR, self.button_rect_L, BUTTON_ABXY_RADIUS, 0)
+			self.show_button("Dao 6", TEXT_COLOR, self.button_rect_R, 0, BUTTON_ABXY_RADIUS)
 
 		elif self.battle.state == Battle.TEXT_ON_SCREEN:
 			# CRIAR UMA FORMA DE QUEBRAR A LINHA

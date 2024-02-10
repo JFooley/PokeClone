@@ -32,9 +32,9 @@ class Game:
 
     def run(self):
         battleUI = BattleUI(self.battleObject, self)
-        Input().initialize(Input.KEYBOARD)
+        Input().initialize()
 
-        while True: 
+        while True: # Event Handdler
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -43,7 +43,9 @@ class Game:
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_F11:
                     pygame.display.toggle_fullscreen()
 
-            # Must Run
+                Input().handle_joystick_events(event)
+
+            # Must Run 
             self.Update_status()
             battleUI.run()
 

@@ -1,5 +1,3 @@
-import copy
-
 class Dao:
 	def __init__(self, id, name, level: int, type1, type2, moves: list, STR: int, RES: int, POW: int, MRES: int, AGI: int, HP: int, currentHP: int):
 		self.id = id

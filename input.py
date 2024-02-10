@@ -22,64 +22,103 @@ class Input:
 
         return cls._instance
 
-    def initialize(self, pattern):
+    def initialize(self):
         if not self._initialized:
-            self.last_frame = copy.deepcopy(pygame.key.get_pressed())
-
-            if pattern == self.KEYBOARD:
-                self.up = pygame.K_UP
-                self.down = pygame.K_DOWN
-                self.left = pygame.K_LEFT
-                self.right = pygame.K_RIGHT
-                self.start = pygame.K_SPACE
-                self.select = pygame.K_m
-                self.A = pygame.K_s
-                self.B = pygame.K_d
-                self.X = pygame.K_a
-                self.Y = pygame.K_w
-
-            elif pattern == self.GAMEPAD:
-                self.up = 11
-                self.down = 12
-                self.left = 13
-                self.right = 14
-                self.start = 8
-                self.select = 7
-                self.A = 1
-                self.B = 2
-                self.X = 3
-                self.Y = 4
-
             self._initialized = True
+            self.last_frame = copy.deepcopy(pygame.key.get_pressed())
+            self.last_frame_gamepad = {}
+
+            if pygame.joystick.get_count() != 0:
+                self.input_type = self.GAMEPAD
+                joystick = pygame.joystick.Joystick(0)
+                joystick.init()
+
+            else:
+                self.input_type = self.KEYBOARD
+
+            self.up = None
+            self.down = None
+            self.left = None
+            self.right = None
+            self.start = None
+            self.select = None
+            self.L = None
+            self.R = None
+            self.A = None
+            self.B = None
+            self.X = None
+            self.Y = None
+
+            self.change_pattern(self.input_type)
+
         else:
             raise Exception("Input already initialized.")
-
-    def set_keys(self, up, down, left, right, start, select, A, B, X, Y):
-        self.up = up
-        self.down = down
-        self.left = left
-        self.right = right
-        self.start = start
-        self.select = select
-        self.A = A
-        self.B = B
-        self.X = Y
-        self.Y = Y
-
+        
     def update(self):
-        self.last_frame = copy.deepcopy(pygame.key.get_pressed())
+        if pygame.joystick.get_count() != 0:
+            self.input_type = self.GAMEPAD
+            joystick = pygame.joystick.Joystick(0)
+            joystick.init()
+        else:
+            self.input_type = self.KEYBOARD
+
+        if self.input_type == self.KEYBOARD:
+            self.last_frame = copy.deepcopy(pygame.key.get_pressed())
+
+    def change_pattern(self, pattern):
+        self.input_type = pattern
+
+        if pattern == self.KEYBOARD:
+            self.up = pygame.K_UP
+            self.down = pygame.K_DOWN
+            self.left = pygame.K_LEFT
+            self.right = pygame.K_RIGHT
+            self.start = pygame.K_SPACE
+            self.select = pygame.K_m
+            self.L = pygame.K_q
+            self.R = pygame.K_e
+            self.A = pygame.K_s
+            self.B = pygame.K_d
+            self.X = pygame.K_a
+            self.Y = pygame.K_w
+
+        elif pattern == self.GAMEPAD:
+            self.up = 11
+            self.down = 12
+            self.left = 13
+            self.right = 14
+            self.start = 8
+            self.select = 7
+            self.L = 5
+            self.R = 6
+            self.A = 1
+            self.B = 2
+            self.X = 3
+            self.Y = 4
+
+    def handle_joystick_events(self, event):
+        if event.type == pygame.JOYDEVICEADDED:
+            self.change_pattern(self.GAMEPAD)
+            joystick = pygame.joystick.Joystick(0)
+            joystick.init()
+
+        elif event.type == pygame.JOYDEVICEREMOVED:
+            self.change_pattern(self.KEYBOARD)
 
     def key_hold(self, key_code):
-        return pygame.key.get_pressed()[key_code]
+        if self.input_type == self.GAMEPAD:
+            return pygame.joystick.Joystick(0).get_button(key_code)
+        else:
+            return pygame.key.get_pressed()[key_code]
 
     def key_down(self, key_code):
-        if not self.last_frame[key_code] and pygame.key.get_pressed()[key_code]:
-            return True
+        if self.input_type == self.GAMEPAD:
+            return pygame.joystick.Joystick(0).get_button(key_code) and not self.last_frame_gamepad[key_code]
         else:
-            return False
+            return not self.last_frame[key_code] and pygame.key.get_pressed()[key_code]
 
     def key_up(self, key_code):
-        if self.last_frame[key_code] and not pygame.key.get_pressed()[key_code]:
-            return True
-        else:
-            return False
+        if self.input_type == self.GAMEPAD:
+            return not pygame.joystick.Joystick(0).get_button(key_code) and self.last_frame_gamepad[key_code]
+        else: 
+            return self.last_frame[key_code] and not pygame.key.get_pressed()[key_code]

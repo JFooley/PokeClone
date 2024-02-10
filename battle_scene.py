@@ -46,43 +46,50 @@ class BattleUI:
 		self.button_rect_L = pygame.Rect(BUTTON_BANNER_L_X, BUTTON_BANNER_L_Y, BUTTON_WIDTH, BUTTON_HEIGTH)
 		self.button_rect_R = pygame.Rect(BUTTON_BANNER_R_X, BUTTON_BANNER_R_Y, BUTTON_WIDTH, BUTTON_HEIGTH)
 
-		# Chat text setup
-		self.chat_box = pygame.Rect(CHATBOX_POS_X, CHATBOX_POS_Y, CHATBOX_WIDTH, CHATBOX_HEIGTH)
-
 		# Listas
 		self.daos = generateDaos(archiveName= os.path.join("Data", "Daos.csv"))
 
 	def run(self):
-		if self.battle.state == Battle.DEFAULT:
-			pass
-		elif self.battle.state == Battle.INTRO:
+		if self.battle.state == Battle.INTRO:
 			self.play_intro()
 		elif self.battle.state == Battle.END:
 			self.play_ending()
-		else:
+		elif self.battle.state != Battle.DEFAULT:
 			self.display()
+		
+		self.do_behaviour()
 
-			#### Vai para behaviour() ####
+	def do_behaviour(self):
+		if self.battle.state != Battle.DEFAULT and self.battle.state != Battle.INTRO and self.battle.state != Battle.END:
+			# MAIN MENU
 			if self.game.state == 1 and self.battle.state == Battle.MAIN_MENU:
 				if Input().key_down(key_code= Input().X):
 					self.battle.state = Battle.FIGHT_MENU
 				elif Input().key_down(key_code= Input().B):
 					self.battle.state = Battle.SUMMON_MENU
 
+			# BATTLE MENU
 			elif self.game.state == 1 and self.battle.state == Battle.FIGHT_MENU:
-				if Input().key_down(key_code= Input().Y):
+				if Input().key_down(key_code= Input().Y): 
+					self.on_screen_text = "Move Y utilizado!"
 					self.battle.state = Battle.TEXT_ON_SCREEN
 				if Input().key_down(key_code= Input().A):
+					self.on_screen_text = "Move A utilizado!"
 					self.battle.state = Battle.TEXT_ON_SCREEN
 				if Input().key_down(key_code= Input().X):
+					self.on_screen_text = "Move X utilizado!"
 					self.battle.state = Battle.TEXT_ON_SCREEN
 				if Input().key_down(key_code= Input().B):
+					self.on_screen_text = "Move B utilizado!"
 					self.battle.state = Battle.TEXT_ON_SCREEN
 					
+			# TEXT ON SCREEN
 			elif self.game.state == 1 and self.battle.state == Battle.TEXT_ON_SCREEN:
 				if Input().key_down(key_code= Input().A):
+					self.on_screen_text = ''
 					self.battle.state = Battle.MAIN_MENU
-					
+			
+			# SUMMON MENU
 			elif self.game.state == 1 and self.battle.state == Battle.SUMMON_MENU:
 				if Input().key_down(key_code= Input().Y):
 					self.battle.state = Battle.TEXT_ON_SCREEN
@@ -96,9 +103,9 @@ class BattleUI:
 					self.battle.state = Battle.TEXT_ON_SCREEN
 				if Input().key_down(key_code= Input().R):
 					self.battle.state = Battle.TEXT_ON_SCREEN
-			#### Vai para behaviour() ####
 
-		####### Test ########
+
+		### PROVISÓRIO ###
 		if self.game.state == 0 and Input().key_down(key_code= Input().start):
 			daoA1 = self.daos['3']
 			daoA2 = self.daos['10']
@@ -121,7 +128,7 @@ class BattleUI:
 			self.battle.currentDaoA.currentHP += 30
 		elif self.game.state == 1 and Input().key_down(key_code= Input().down):
 			self.battle.currentDaoA.currentHP -= 45
-		####### Test ######## 
+		### PROVISÓRIO ###
 
 	def show_bar(self, current, max_amount, shadow_value, bg_rect: Rect, color, shadow_color):
 		# draw bg 
@@ -184,16 +191,22 @@ class BattleUI:
 		# draw text
 		self.display_surface.blit(text_surface, text_rect)
 
-	def show_chatbox(self, text, textcolor, rect: Rect):
-		# draw bg
-		pygame.draw.rect(self.display_surface, UI_BG_COLOR, rect, border_radius= int(BUTTON_HEIGTH))
+	def show_chatbox(self, textcolor):
+		# draw bg and button
+		rect = pygame.Rect(CHATBOX_POS_X, CHATBOX_POS_Y, CHATBOX_WIDTH, CHATBOX_HEIGTH)
+		pygame.draw.rect(self.display_surface, UI_BG_COLOR, rect, border_radius= int(HALF_UNIT))
+		self.show_button_UI("A", ABXY_COLOR, CHATBOX_BUTTON_X, CHATBOX_BUTTON_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+
+		# text offset
+		text_surface = self.font_medium.render(self.on_screen_text, True, textcolor)
+
+		padding_X = HALF_UNIT
+		padding_Y = HALF_UNIT
+		
+		text_rect = pygame.Rect((rect.left + padding_X), (rect.top + padding_Y), CHATBOX_WIDTH, CHATBOX_WIDTH)
 
 		# draw text
-		padding_X = BUTTON_HEIGTH
-		padding_Y = BUTTON_HEIGTH // 2
-		text_offset = pygame.Rect((rect.left + padding_X), (rect.top + padding_Y), CHATBOX_WIDTH, CHATBOX_WIDTH)
-		text_surface = self.font_medium.render(text, True, textcolor)
-		self.display_surface.blit(text_surface, text_offset)
+		self.display_surface.blit(text_surface, text_rect)
 
 	def display(self):
 		# Background
@@ -243,38 +256,45 @@ class BattleUI:
 			self.show_button_UI("X", ABXY_COLOR, BUTTON_X_X, BUTTON_X_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 			self.show_button_UI("Y", ABXY_COLOR, BUTTON_Y_X, BUTTON_Y_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 			
-			moveA = self.battle.currentDaoA.moves[0].name if 0 < len(self.battle.currentDaoA.moves) else "Move A"
-			self.show_button(moveA, TEXT_COLOR, self.button_rect_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			moveY = self.battle.currentDaoA.moves[0].name if 0 < len(self.battle.currentDaoA.moves) else "Move Y"
+			self.show_button(moveY, TEXT_COLOR, self.button_rect_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 
-			moveB = self.battle.currentDaoA.moves[1].name if 0 < len(self.battle.currentDaoA.moves) else "Move B"
-			self.show_button(moveB, TEXT_COLOR, self.button_rect_X, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			moveX = self.battle.currentDaoA.moves[1].name if 0 < len(self.battle.currentDaoA.moves) else "Move X"
+			self.show_button(moveX, TEXT_COLOR, self.button_rect_X, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 
-			moveC = self.battle.currentDaoA.moves[2].name if 0 < len(self.battle.currentDaoA.moves) else "Move C"
-			self.show_button(moveC, TEXT_COLOR, self.button_rect_B, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			moveB = self.battle.currentDaoA.moves[2].name if 0 < len(self.battle.currentDaoA.moves) else "Move B"
+			self.show_button(moveB, TEXT_COLOR, self.button_rect_B, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 
-			moveD = self.battle.currentDaoA.moves[3].name if 0 < len(self.battle.currentDaoA.moves) else "Move D"
-			self.show_button(moveD, TEXT_COLOR, self.button_rect_A, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			moveA = self.battle.currentDaoA.moves[3].name if 0 < len(self.battle.currentDaoA.moves) else "Move A"
+			self.show_button(moveA, TEXT_COLOR, self.button_rect_A, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 
 		elif self.battle.state == Battle.SUMMON_MENU:
-			dao_A = self.battle.battleListA[0].name if len(self.battle.battleListA) > 0 else "- Vazio -"
+			dao_A = f"LV:{self.battle.battleListA[0].level} {self.battle.battleListA[0].name}" if len(self.battle.battleListA) > 0 else ""
 			self.show_button_UI("A", ABXY_COLOR, BUTTON_A_X, BUTTON_A_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 			self.show_button(dao_A, TEXT_COLOR, self.button_rect_A, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 
-			
+			dao_B = f"LV:{self.battle.battleListA[1].level} {self.battle.battleListA[1].name}" if len(self.battle.battleListA) > 1 else ""
+			self.show_button(dao_B, TEXT_COLOR, self.button_rect_B, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 			self.show_button_UI("B", ABXY_COLOR, BUTTON_B_X, BUTTON_B_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+
+			dao_X = f"LV:{self.battle.battleListA[2].level} {self.battle.battleListA[2].name}" if len(self.battle.battleListA) > 2 else ""
+			self.show_button(dao_X, TEXT_COLOR, self.button_rect_X, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 			self.show_button_UI("X", ABXY_COLOR, BUTTON_X_X, BUTTON_X_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+
+			dao_Y = f"LV:{self.battle.battleListA[3].level} {self.battle.battleListA[3].name}" if len(self.battle.battleListA) > 3 else ""
+			self.show_button(dao_Y, TEXT_COLOR, self.button_rect_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 			self.show_button_UI("Y", ABXY_COLOR, BUTTON_Y_X, BUTTON_Y_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+
+			dao_L = f"LV:{self.battle.battleListA[4].level} {self.battle.battleListA[4].name}" if len(self.battle.battleListA) > 4 else ""
+			self.show_button(dao_L, TEXT_COLOR, self.button_rect_L, BUTTON_ABXY_RADIUS, 0)
 			self.show_button_UI("L", ABXY_COLOR, BUTTON_L_X, BUTTON_L_Y, 0, BUTTON_ABXY_RADIUS)
+
+			dao_R = f"LV:{self.battle.battleListA[5].level} {self.battle.battleListA[5].name}" if len(self.battle.battleListA) > 5 else ""
+			self.show_button(dao_R, TEXT_COLOR, self.button_rect_R, 0, BUTTON_ABXY_RADIUS)
 			self.show_button_UI("R", ABXY_COLOR, BUTTON_R_X, BUTTON_R_Y, BUTTON_ABXY_RADIUS, 0)
 
-			self.show_button("Dao 2", TEXT_COLOR, self.button_rect_B, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
-			self.show_button("Dao 3", TEXT_COLOR, self.button_rect_X, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
-			self.show_button("Dao 4", TEXT_COLOR, self.button_rect_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
-			self.show_button("Dao 5", TEXT_COLOR, self.button_rect_L, BUTTON_ABXY_RADIUS, 0)
-			self.show_button("Dao 6", TEXT_COLOR, self.button_rect_R, 0, BUTTON_ABXY_RADIUS)
-
 		elif self.battle.state == Battle.TEXT_ON_SCREEN:
-			self.show_chatbox(self.on_screen_text, TEXT_COLOR, self.chat_box)
+			self.show_chatbox(TEXT_COLOR)
 	
 	def play_intro(self):
 		if self.intro_offset <= 0:

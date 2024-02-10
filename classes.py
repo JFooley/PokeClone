@@ -1,5 +1,5 @@
 class Dao:
-	def __init__(self, id, name, level: int, type1, type2, moves: list, STR: int, RES: int, POW: int, MRES: int, AGI: int, HP: int, currentHP: int):
+	def __init__(self, id, name, level: int, type1, type2, moves: list, STR: int, RES: int, POW: int, MRES: int, AGI: int, HP: int, currentHP: int, summon_text= f"Eu invoco você!"):
 		self.id = id
 		self.name = name
 		self.level = level
@@ -16,6 +16,7 @@ class Dao:
 		
 		self.currentHP = currentHP
 		self.effects: list = []
+		self.summon_text = summon_text
             
 		self.state = "idle"
 	

@@ -7,7 +7,8 @@ class Battle():
     # Terms
     YOU = "A"
     FOE = "B"
-    SUMMON = "summon"
+    ACTION_SUMMON = "summon"
+    ACTION_BATTLE = "move"
 
     # States
     DEFAULT = 'default'
@@ -49,22 +50,23 @@ class Battle():
     def End(self):
         self.state = Battle.END
 
-    def Turn(self, actionA, actionB): # Action can be SUMMON or a number from 0 to 3 (move index)
+    def Turn(self, actionA, actionB, action_index_A, action_index_B):
         # Check the actions
-        if actionA == self.SUMMON and actionB == self.SUMMON: # Both summon
-            self.Summon(self.YOU, actionA)
-            self.Summon(self.FOE, actionB)
+        if actionA == self.ACTION_SUMMON and actionB == self.ACTION_SUMMON: # Both summon
+            self.Summon(self.YOU, action_index_A)
+            self.Summon(self.FOE, action_index_B)
 
-        elif actionA == self.SUMMON and actionB != self.SUMMON: # You summon, foe battle
-            self.Summon(self.YOU, actionA)
+        elif actionA == self.ACTION_SUMMON and actionB == self.ACTION_BATTLE: # You summon, foe battle
+            self.Summon(self.YOU, action_index_A)
             emptyMove = Move()
 
-        elif actionA != self.SUMMON and actionB == self.SUMMON: # You battle, foe summon
-            self.Summon(self.FOE, actionB)
+        elif actionA == self.ACTION_BATTLE and actionB == self.ACTION_SUMMON: # You battle, foe summon
+            self.Summon(self.FOE, action_index_B)
             emptyMove = Move()
 
-        else: # Both battle
-            pass
+        elif actionA == self.ACTION_BATTLE and actionB == self.ACTION_BATTLE:
+            emptyMove = Move()
+            emptyMove = Move()
 
         # Apply your effects
         remainingEffects = []

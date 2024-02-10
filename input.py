@@ -55,13 +55,6 @@ class Input:
             raise Exception("Input already initialized.")
         
     def update(self):
-        if pygame.joystick.get_count() != 0:
-            self.input_type = self.GAMEPAD
-            joystick = pygame.joystick.Joystick(0)
-            joystick.init()
-        else:
-            self.input_type = self.KEYBOARD
-
         if self.input_type == self.KEYBOARD:
             self.last_frame = copy.deepcopy(pygame.key.get_pressed())
 
@@ -104,6 +97,10 @@ class Input:
 
         elif event.type == pygame.JOYDEVICEREMOVED:
             self.change_pattern(self.KEYBOARD)
+            
+        # You can call this method in the event handler looping to change automatically between
+        # keyboard and gamepad when a joystick is coneccted. You can change the class to detect
+        # when a especific button is pressed to change the pattern.
 
     def key_hold(self, key_code):
         if self.input_type == self.GAMEPAD:

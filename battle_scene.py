@@ -73,13 +73,13 @@ class BattleUI:
 				if Input().key_up(key_code= Input().Y): 
 					self.on_screen_text = "Move Y utilizado!"
 					self.battle.state = Battle.TEXT_ON_SCREEN
-				if Input().key_up(key_code= Input().A):
+				elif Input().key_up(key_code= Input().A):
 					self.on_screen_text = "Move A utilizado!"
 					self.battle.state = Battle.TEXT_ON_SCREEN
-				if Input().key_up(key_code= Input().X):
+				elif Input().key_up(key_code= Input().X):
 					self.on_screen_text = "Move X utilizado!"
 					self.battle.state = Battle.TEXT_ON_SCREEN
-				if Input().key_up(key_code= Input().B):
+				elif Input().key_up(key_code= Input().B):
 					self.on_screen_text = "Move B utilizado!"
 					self.battle.state = Battle.TEXT_ON_SCREEN
 					
@@ -91,30 +91,58 @@ class BattleUI:
 			
 			# SUMMON MENU
 			elif self.game.state == 1 and self.battle.state == Battle.SUMMON_MENU:
-				if Input().key_up(key_code= Input().Y):
-					self.battle.state = Battle.TEXT_ON_SCREEN
 				if Input().key_up(key_code= Input().A):
-					self.battle.state = Battle.TEXT_ON_SCREEN
-				if Input().key_up(key_code= Input().X):
-					self.battle.state = Battle.TEXT_ON_SCREEN
-				if Input().key_up(key_code= Input().B):
-					self.battle.state = Battle.TEXT_ON_SCREEN
-				if Input().key_up(key_code= Input().L):
-					self.battle.state = Battle.TEXT_ON_SCREEN
-				if Input().key_up(key_code= Input().R):
-					self.battle.state = Battle.TEXT_ON_SCREEN
+					if len(self.battle.battleListA) > 0 and self.battle.battleListA[0].currentHP > 0 and self.battle.currentDaoA != self.battle.battleListA[0]:
+						self.battle.Summon(Battle.YOU, 0)
+						self.on_screen_text = self.battle.currentDaoA.summon_text
+						self.battle.state = Battle.TEXT_ON_SCREEN
 
+				elif Input().key_up(key_code= Input().B):
+					if len(self.battle.battleListA) > 1 and self.battle.battleListA[1].currentHP > 1 and self.battle.currentDaoA != self.battle.battleListA[1]:
+						self.battle.Summon(Battle.YOU, 1)
+						self.on_screen_text = self.battle.currentDaoA.summon_text
+						self.battle.state = Battle.TEXT_ON_SCREEN
+
+				elif Input().key_up(key_code= Input().X):
+					if len(self.battle.battleListA) > 2 and self.battle.battleListA[2].currentHP > 2 and self.battle.currentDaoA != self.battle.battleListA[2]:
+						self.battle.Summon(Battle.YOU, 2)
+						self.on_screen_text = self.battle.currentDaoA.summon_text
+						self.battle.state = Battle.TEXT_ON_SCREEN
+
+				elif Input().key_up(key_code= Input().Y):
+					if len(self.battle.battleListA) > 3 and self.battle.battleListA[3].currentHP > 3 and self.battle.currentDaoA != self.battle.battleListA[3]:
+						self.battle.Summon(Battle.YOU, 3)
+						self.on_screen_text = self.battle.currentDaoA.summon_text
+						self.battle.state = Battle.TEXT_ON_SCREEN
+
+				elif Input().key_up(key_code= Input().L):
+					if len(self.battle.battleListA) > 4 and self.battle.battleListA[4].currentHP > 4 and self.battle.currentDaoA != self.battle.battleListA[4]:
+						self.battle.Summon(Battle.YOU, 4)
+						self.on_screen_text = self.battle.currentDaoA.summon_text
+						self.battle.state = Battle.TEXT_ON_SCREEN
+
+				elif Input().key_up(key_code= Input().R):
+					if len(self.battle.battleListA) > 5 and self.battle.battleListA[5].currentHP > 5 and self.battle.currentDaoA != self.battle.battleListA[5]:
+						self.battle.Summon(Battle.YOU, 5)
+						self.on_screen_text = self.battle.currentDaoA.summon_text
+						self.battle.state = Battle.TEXT_ON_SCREEN
 
 		### PROVISÓRIO ###
 		if self.game.state == 0 and Input().key_down(key_code= Input().start):
-			daoA1 = self.daos['3']
-			daoA2 = self.daos['10']
-			daoA3 = self.daos['15']
+			daoA1 = self.daos['6']
+			daoA2 = self.daos['106']
+			daoA3 = self.daos['215']
+			daoA1.level = 5
+			daoA2.level = 10
+			daoA3.level = 3
+			daoA1.summon_text = f"Nascido do fogo e da forja, eu clamo por seu poder, surja! {daoA1.name}!"
+			daoA2.summon_text = f"Sua força é inigualável, invoco o seu espirito! venha {daoA2.name}!"
+
 			self.game.player.Insert_dao(daoA1)
 			self.game.player.Insert_dao(daoA2)
 			self.game.player.Insert_dao(daoA3)
 
-			daoB1 = self.daos['6']
+			daoB1 = self.daos['3']
 			daoB2 = self.daos['20']
 			daoB3 = self.daos['30']
 			enemy = Guider("Enemy", 0, {}, [daoB1, daoB2, daoB3])
@@ -234,14 +262,14 @@ class BattleUI:
 		# Life bars
 		self.daoA_hpsize = self.daoA_hpsize + (self.battle.currentDaoA.currentHP - self.daoA_hpsize) * (0.05)
 		self.show_bar(int(self.battle.currentDaoA.currentHP), int(self.battle.currentDaoA.HP), self.daoA_hpsize, self.daoA_hpbar, HP_COLOR, HP_SHADOW_COLOR)
-		self.show_text(f"{int(self.battle.currentDaoA.currentHP)} / {int(self.battle.currentDaoA.HP)}", self.daoA_hptext, TEXT_COLOR)
-		self.show_text(f"LV: {self.battle.currentDaoA.level} {self.battle.currentDaoA.name}", self.daoA_name, TEXT_COLOR)
+		self.show_text(f"{int(self.battle.currentDaoA.currentHP)} / {int(self.battle.currentDaoA.HP)}" if self.battle.currentDaoA.currentHP > 0 else "Defeated", self.daoA_hptext, TEXT_COLOR)
+		self.show_text(f"LV: {"◊" * self.battle.currentDaoA.level} {self.battle.currentDaoA.name}", self.daoA_name, TEXT_COLOR)
 		self.show_text(f"+{self.battle.initA}", self.daoA_init, TEXT_COLOR)
 
 		self.daoB_hpsize = self.daoB_hpsize + (self.battle.currentDaoB.currentHP - self.daoB_hpsize) * (0.05)
 		self.show_bar(int(self.battle.currentDaoB.currentHP), int(self.battle.currentDaoB.HP), self.daoB_hpsize, self.daoB_hpbar, HP_COLOR, HP_SHADOW_COLOR)
-		self.show_text(f"{int(self.battle.currentDaoB.currentHP)} / {int(self.battle.currentDaoB.HP)}", self.daoB_hptext, TEXT_COLOR)
-		self.show_text(f"LV: {self.battle.currentDaoB.level} {self.battle.currentDaoB.name}", self.daoB_name, TEXT_COLOR)
+		self.show_text(f"{int(self.battle.currentDaoB.currentHP)} / {int(self.battle.currentDaoB.HP)}" if self.battle.currentDaoB.currentHP > 0 else "Defeated", self.daoB_hptext, TEXT_COLOR)
+		self.show_text(f"LV: {"◊" * self.battle.currentDaoB.level} {self.battle.currentDaoB.name}", self.daoB_name, TEXT_COLOR)
 		self.show_text(f"+{self.battle.initB}", self.daoB_init, TEXT_COLOR)
 
 		# Situacional UI

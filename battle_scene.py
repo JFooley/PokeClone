@@ -63,45 +63,45 @@ class BattleUI:
 		if self.battle.state != Battle.DEFAULT and self.battle.state != Battle.INTRO and self.battle.state != Battle.END:
 			# MAIN MENU
 			if self.game.state == 1 and self.battle.state == Battle.MAIN_MENU:
-				if Input().key_down(key_code= Input().X):
+				if Input().key_up(key_code= Input().X):
 					self.battle.state = Battle.FIGHT_MENU
-				elif Input().key_down(key_code= Input().B):
+				elif Input().key_up(key_code= Input().B):
 					self.battle.state = Battle.SUMMON_MENU
 
 			# BATTLE MENU
 			elif self.game.state == 1 and self.battle.state == Battle.FIGHT_MENU:
-				if Input().key_down(key_code= Input().Y): 
+				if Input().key_up(key_code= Input().Y): 
 					self.on_screen_text = "Move Y utilizado!"
 					self.battle.state = Battle.TEXT_ON_SCREEN
-				if Input().key_down(key_code= Input().A):
+				if Input().key_up(key_code= Input().A):
 					self.on_screen_text = "Move A utilizado!"
 					self.battle.state = Battle.TEXT_ON_SCREEN
-				if Input().key_down(key_code= Input().X):
+				if Input().key_up(key_code= Input().X):
 					self.on_screen_text = "Move X utilizado!"
 					self.battle.state = Battle.TEXT_ON_SCREEN
-				if Input().key_down(key_code= Input().B):
+				if Input().key_up(key_code= Input().B):
 					self.on_screen_text = "Move B utilizado!"
 					self.battle.state = Battle.TEXT_ON_SCREEN
 					
 			# TEXT ON SCREEN
 			elif self.game.state == 1 and self.battle.state == Battle.TEXT_ON_SCREEN:
-				if Input().key_down(key_code= Input().A):
+				if Input().key_up(key_code= Input().A):
 					self.on_screen_text = ''
 					self.battle.state = Battle.MAIN_MENU
 			
 			# SUMMON MENU
 			elif self.game.state == 1 and self.battle.state == Battle.SUMMON_MENU:
-				if Input().key_down(key_code= Input().Y):
+				if Input().key_up(key_code= Input().Y):
 					self.battle.state = Battle.TEXT_ON_SCREEN
-				if Input().key_down(key_code= Input().A):
+				if Input().key_up(key_code= Input().A):
 					self.battle.state = Battle.TEXT_ON_SCREEN
-				if Input().key_down(key_code= Input().X):
+				if Input().key_up(key_code= Input().X):
 					self.battle.state = Battle.TEXT_ON_SCREEN
-				if Input().key_down(key_code= Input().B):
+				if Input().key_up(key_code= Input().B):
 					self.battle.state = Battle.TEXT_ON_SCREEN
-				if Input().key_down(key_code= Input().L):
+				if Input().key_up(key_code= Input().L):
 					self.battle.state = Battle.TEXT_ON_SCREEN
-				if Input().key_down(key_code= Input().R):
+				if Input().key_up(key_code= Input().R):
 					self.battle.state = Battle.TEXT_ON_SCREEN
 
 
@@ -170,11 +170,13 @@ class BattleUI:
 		# draw text
 		self.display_surface.blit(text_surface, text_rect)
 
-	def show_button_UI(self, text, color, pos_X, pos_Y, l_radius, r_radius):
+	def show_button_UI(self, text, button_ID, color, active_color, pos_X, pos_Y, l_radius, r_radius):
 		rect = pygame.Rect(pos_X, pos_Y, BUTTON_HEIGTH, BUTTON_HEIGTH)
-
+		
 		# Draw bg
-		pygame.draw.rect(self.display_surface, color, rect,
+		selected_color = active_color if Input().key_hold(button_ID) else color
+
+		pygame.draw.rect(self.display_surface, selected_color, rect,
 			border_top_left_radius= l_radius, 
 			border_bottom_left_radius= l_radius, 
 			border_top_right_radius= r_radius, 
@@ -195,7 +197,7 @@ class BattleUI:
 		# draw bg and button
 		rect = pygame.Rect(CHATBOX_POS_X, CHATBOX_POS_Y, CHATBOX_WIDTH, CHATBOX_HEIGTH)
 		pygame.draw.rect(self.display_surface, UI_BG_COLOR, rect, border_radius= int(HALF_UNIT))
-		self.show_button_UI("A", ABXY_COLOR, CHATBOX_BUTTON_X, CHATBOX_BUTTON_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+		self.show_button_UI("A", Input().A, ABXY_COLOR, ON_SELECT_COLOR, CHATBOX_BUTTON_X, CHATBOX_BUTTON_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 
 		# text offset
 		text_surface = self.font_medium.render(self.on_screen_text, True, textcolor)
@@ -244,17 +246,17 @@ class BattleUI:
 
 		# Situacional UI
 		if self.battle.state == Battle.MAIN_MENU:
-			self.show_button_UI("B", ABXY_COLOR, BUTTON_B_X, BUTTON_B_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
-			self.show_button_UI("X", ABXY_COLOR, BUTTON_X_X, BUTTON_X_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			self.show_button_UI("B", Input().B, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_B_X, BUTTON_B_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			self.show_button_UI("X", Input().X, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_X_X, BUTTON_X_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 
 			self.show_button("Summon", TEXT_COLOR, self.button_rect_B, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 			self.show_button("Fight", TEXT_COLOR, self.button_rect_X, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 
 		elif self.battle.state == Battle.FIGHT_MENU:
-			self.show_button_UI("A", ABXY_COLOR, BUTTON_A_X, BUTTON_A_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
-			self.show_button_UI("B", ABXY_COLOR, BUTTON_B_X, BUTTON_B_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
-			self.show_button_UI("X", ABXY_COLOR, BUTTON_X_X, BUTTON_X_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
-			self.show_button_UI("Y", ABXY_COLOR, BUTTON_Y_X, BUTTON_Y_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			self.show_button_UI("A", Input().A, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_A_X, BUTTON_A_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			self.show_button_UI("B", Input().B, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_B_X, BUTTON_B_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			self.show_button_UI("X", Input().X, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_X_X, BUTTON_X_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			self.show_button_UI("Y", Input().Y, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_Y_X, BUTTON_Y_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 			
 			moveY = self.battle.currentDaoA.moves[0].name if 0 < len(self.battle.currentDaoA.moves) else "Move Y"
 			self.show_button(moveY, TEXT_COLOR, self.button_rect_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
@@ -270,28 +272,28 @@ class BattleUI:
 
 		elif self.battle.state == Battle.SUMMON_MENU:
 			dao_A = f"LV:{self.battle.battleListA[0].level} {self.battle.battleListA[0].name}" if len(self.battle.battleListA) > 0 else ""
-			self.show_button_UI("A", ABXY_COLOR, BUTTON_A_X, BUTTON_A_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			self.show_button_UI("A", Input().A, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_A_X, BUTTON_A_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 			self.show_button(dao_A, TEXT_COLOR, self.button_rect_A, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 
 			dao_B = f"LV:{self.battle.battleListA[1].level} {self.battle.battleListA[1].name}" if len(self.battle.battleListA) > 1 else ""
 			self.show_button(dao_B, TEXT_COLOR, self.button_rect_B, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
-			self.show_button_UI("B", ABXY_COLOR, BUTTON_B_X, BUTTON_B_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			self.show_button_UI("B", Input().B, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_B_X, BUTTON_B_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 
 			dao_X = f"LV:{self.battle.battleListA[2].level} {self.battle.battleListA[2].name}" if len(self.battle.battleListA) > 2 else ""
 			self.show_button(dao_X, TEXT_COLOR, self.button_rect_X, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
-			self.show_button_UI("X", ABXY_COLOR, BUTTON_X_X, BUTTON_X_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			self.show_button_UI("X", Input().X, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_X_X, BUTTON_X_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 
 			dao_Y = f"LV:{self.battle.battleListA[3].level} {self.battle.battleListA[3].name}" if len(self.battle.battleListA) > 3 else ""
 			self.show_button(dao_Y, TEXT_COLOR, self.button_rect_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
-			self.show_button_UI("Y", ABXY_COLOR, BUTTON_Y_X, BUTTON_Y_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			self.show_button_UI("Y", Input().Y, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_Y_X, BUTTON_Y_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 
 			dao_L = f"LV:{self.battle.battleListA[4].level} {self.battle.battleListA[4].name}" if len(self.battle.battleListA) > 4 else ""
 			self.show_button(dao_L, TEXT_COLOR, self.button_rect_L, BUTTON_ABXY_RADIUS, 0)
-			self.show_button_UI("L", ABXY_COLOR, BUTTON_L_X, BUTTON_L_Y, 0, BUTTON_ABXY_RADIUS)
+			self.show_button_UI("L", Input().L, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_L_X, BUTTON_L_Y, 0, BUTTON_ABXY_RADIUS)
 
 			dao_R = f"LV:{self.battle.battleListA[5].level} {self.battle.battleListA[5].name}" if len(self.battle.battleListA) > 5 else ""
 			self.show_button(dao_R, TEXT_COLOR, self.button_rect_R, 0, BUTTON_ABXY_RADIUS)
-			self.show_button_UI("R", ABXY_COLOR, BUTTON_R_X, BUTTON_R_Y, BUTTON_ABXY_RADIUS, 0)
+			self.show_button_UI("R", Input().R, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_R_X, BUTTON_R_Y, BUTTON_ABXY_RADIUS, 0)
 
 		elif self.battle.state == Battle.TEXT_ON_SCREEN:
 			self.show_chatbox(TEXT_COLOR)

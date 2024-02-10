@@ -15,7 +15,7 @@ class BattleUI:
 		# Variables
 		self.intro_offset = (WIDTH // 2)
 		self.time_stamp = 0
-		self.was_pressed = []
+		self.on_screen_text = ''
 	
 		# general 
 		self.display_surface = pygame.display.get_surface()
@@ -70,7 +70,6 @@ class BattleUI:
 					self.battle.state = Battle.SUMMON_MENU
 
 			elif self.game.state == 1 and self.battle.state == Battle.FIGHT_MENU:
-				####### Test #######
 				if Input().key_down(key_code= Input().Y):
 					self.battle.state = Battle.TEXT_ON_SCREEN
 				if Input().key_down(key_code= Input().A):
@@ -79,19 +78,24 @@ class BattleUI:
 					self.battle.state = Battle.TEXT_ON_SCREEN
 				if Input().key_down(key_code= Input().B):
 					self.battle.state = Battle.TEXT_ON_SCREEN
-				####### Test #######
 					
 			elif self.game.state == 1 and self.battle.state == Battle.TEXT_ON_SCREEN:
-				####### Test #######
 				if Input().key_down(key_code= Input().A):
 					self.battle.state = Battle.MAIN_MENU
-				####### Test #######
 					
 			elif self.game.state == 1 and self.battle.state == Battle.SUMMON_MENU:
-				####### Test #######
+				if Input().key_down(key_code= Input().Y):
+					self.battle.state = Battle.TEXT_ON_SCREEN
 				if Input().key_down(key_code= Input().A):
-					self.battle.state = Battle.MAIN_MENU
-				####### Test #######
+					self.battle.state = Battle.TEXT_ON_SCREEN
+				if Input().key_down(key_code= Input().X):
+					self.battle.state = Battle.TEXT_ON_SCREEN
+				if Input().key_down(key_code= Input().B):
+					self.battle.state = Battle.TEXT_ON_SCREEN
+				if Input().key_down(key_code= Input().L):
+					self.battle.state = Battle.TEXT_ON_SCREEN
+				if Input().key_down(key_code= Input().R):
+					self.battle.state = Battle.TEXT_ON_SCREEN
 			#### Vai para behaviour() ####
 
 		####### Test ########
@@ -110,13 +114,13 @@ class BattleUI:
 
 			self.battle.Start(self.game.player, enemy)
 
+		elif self.game.state == 1 and Input().key_down(key_code= Input().start):
+			self.battle.End()
+
 		if self.game.state == 1 and Input().key_down(key_code= Input().up):
 			self.battle.currentDaoA.currentHP += 30
 		elif self.game.state == 1 and Input().key_down(key_code= Input().down):
 			self.battle.currentDaoA.currentHP -= 45
-
-		if self.game.state == 1 and Input().key_down(key_code= Input().start):
-			self.battle.End()
 		####### Test ######## 
 
 	def show_bar(self, current, max_amount, shadow_value, bg_rect: Rect, color, shadow_color):
@@ -270,9 +274,7 @@ class BattleUI:
 			self.show_button("Dao 6", TEXT_COLOR, self.button_rect_R, 0, BUTTON_ABXY_RADIUS)
 
 		elif self.battle.state == Battle.TEXT_ON_SCREEN:
-			# CRIAR UMA FORMA DE QUEBRAR A LINHA
-			texto_teste = "Ola tudo bem? hahahhaa Ola tudo bem? hahahhaa"
-			self.show_chatbox(texto_teste, TEXT_COLOR, self.chat_box)
+			self.show_chatbox(self.on_screen_text, TEXT_COLOR, self.chat_box)
 	
 	def play_intro(self):
 		if self.intro_offset <= 0:

@@ -1,4 +1,4 @@
-import pygame, os, copy
+import pygame, os
 from pygame import Rect
 from settings import * 
 from battle import Battle
@@ -16,10 +16,15 @@ class BattleUI:
 		self.intro_offset = (WIDTH // 2)
 		self.time_stamp = 0
 		self.on_screen_text = ''
+
+		# Charts
+		self.colorChart = generateColorChart("Data/ColorChart.csv")
+		self.typeChart = generateTypeChart("Data/TypeChart.csv")
 	
 		# general 
 		self.display_surface = pygame.display.get_surface()
 		self.font_medium = pygame.font.Font(UI_FONT, UI_FONT_SIZE)
+		self.font_type = pygame.font.Font(UI_FONT, TYPE_FONT_SIZE)
 
 		# hp bar setup 
 		self.daoA_hpbar = pygame.Rect(HP_A_POS_X, HP_A_POS_Y, HP_BAR_WIDTH, BAR_HEIGHT)
@@ -63,10 +68,12 @@ class BattleUI:
 		if self.battle.state != Battle.DEFAULT and self.battle.state != Battle.INTRO and self.battle.state != Battle.END:
 			# MAIN MENU
 			if self.game.state == 1 and self.battle.state == Battle.MAIN_MENU:
-				if Input().key_up(key_code= Input().X):
+				if Input().key_up(key_code= Input().X) and self.battle.currentDaoA.currentHP > 0:
 					self.battle.state = Battle.FIGHT_MENU
 				elif Input().key_up(key_code= Input().B):
 					self.battle.state = Battle.SUMMON_MENU
+				# elif Input().key_up(key_code= Input().A):
+				# 	self.battle.state = Battle.END
 
 			# BATTLE MENU
 			elif self.game.state == 1 and self.battle.state == Battle.FIGHT_MENU:
@@ -132,15 +139,21 @@ class BattleUI:
 			daoA1 = self.daos['6']
 			daoA2 = self.daos['106']
 			daoA3 = self.daos['215']
+			daoA4 = self.daos['122']
+			daoA5 = self.daos['200']
 			daoA1.level = 5
 			daoA2.level = 10
 			daoA3.level = 3
+			daoA4.level = 8
+			daoA5.level = 2
 			daoA1.summon_text = f"Nascido do fogo e da forja, eu clamo por seu poder, surja! {daoA1.name}!"
 			daoA2.summon_text = f"Sua força é inigualável, invoco o seu espirito! venha {daoA2.name}!"
 
 			self.game.player.Insert_dao(daoA1)
 			self.game.player.Insert_dao(daoA2)
 			self.game.player.Insert_dao(daoA3)
+			self.game.player.Insert_dao(daoA4)
+			self.game.player.Insert_dao(daoA5)
 
 			daoB1 = self.daos['3']
 			daoB2 = self.daos['20']
@@ -179,13 +192,37 @@ class BattleUI:
 		text_surface = self.font_medium.render(text, True, color)
 		self.display_surface.blit(text_surface, rect)
 
-	def show_button(self, text, textcolor, rect: Rect, l_radius, r_radius):
+	def show_button(self, text, textcolor, rect: Rect, l_radius, r_radius, type1= '', type2= ''):
 		# draw bg 
 		pygame.draw.rect(self.display_surface, UI_BG_COLOR, rect, 
 				   border_top_left_radius= l_radius, 
 				   border_bottom_left_radius= l_radius,
 				   border_top_right_radius= r_radius,
 				   border_bottom_right_radius= r_radius)
+		
+		# draw type bg (if needs)
+		if type1 != '':
+			line_width = BUTTON_HEIGTH // 10
+
+			rect_L = pygame.Rect(rect.x, rect.y, BUTTON_WIDTH // 2 , BUTTON_HEIGTH)
+			rect_R = pygame.Rect(rect.centerx, rect.y, BUTTON_WIDTH // 2, BUTTON_HEIGTH)
+			rect_culling = pygame.Rect(rect.centerx - BUTTON_HEIGTH // 2, rect.centery - (BUTTON_HEIGTH - 2 * line_width) // 2, BUTTON_HEIGTH, BUTTON_HEIGTH - 2 * line_width)
+
+			pygame.draw.rect(self.display_surface,
+				self.colorChart[type1], 
+				rect_L,
+				border_top_left_radius= l_radius, 
+				border_bottom_left_radius= l_radius,
+				width= line_width)
+		
+			pygame.draw.rect(self.display_surface, 
+				self.colorChart[type2] if type2 != '' else self.colorChart[type1], 
+				rect_R,
+				border_top_right_radius= r_radius,
+				border_bottom_right_radius= r_radius,
+				width= line_width)
+			
+			pygame.draw.rect(self.display_surface, UI_BG_COLOR, rect_culling)
 		
 		# Text offset
 		text_surface = self.font_medium.render(text, True, textcolor)
@@ -217,6 +254,26 @@ class BattleUI:
 		padding_Y = text_surface.get_rect().height // 2
 		
 		text_rect = pygame.Rect((rect.centerx - padding_X), (rect.centery - padding_Y), BUTTON_HEIGTH, BUTTON_HEIGTH)
+
+		# draw text
+		self.display_surface.blit(text_surface, text_rect)
+	
+	def show_type_icon(self, type, pos_X, pos_Y):
+		rect = pygame.Rect(pos_X, pos_Y, TYPE_ICON_WIDTH, TYPE_ICON_HEIGTH)
+
+		# Draw bg
+		pygame.draw.rect(self.display_surface, self.colorChart[type], rect, border_radius=(TYPE_ICON_HEIGTH // 2))
+
+		# pygame.draw.rect(self.display_surface, TEXT_COLOR, rect, border_radius=(TYPE_ICON_HEIGTH // 2), width= TYPE_ICON_HEIGTH // 10)
+		
+		# Text offset
+		self.font_type.set_bold(True)
+		text_surface = self.font_type.render(type, True, TEXT_COLOR)
+
+		padding_X = text_surface.get_rect().width // 2
+		padding_Y = text_surface.get_rect().height // 2
+		
+		text_rect = pygame.Rect((rect.centerx - padding_X), (rect.centery - padding_Y), TYPE_ICON_WIDTH, TYPE_ICON_HEIGTH)
 
 		# draw text
 		self.display_surface.blit(text_surface, text_rect)
@@ -263,64 +320,90 @@ class BattleUI:
 		self.daoA_hpsize = self.daoA_hpsize + (self.battle.currentDaoA.currentHP - self.daoA_hpsize) * (0.05)
 		self.show_bar(int(self.battle.currentDaoA.currentHP), int(self.battle.currentDaoA.HP), self.daoA_hpsize, self.daoA_hpbar, HP_COLOR, HP_SHADOW_COLOR)
 		self.show_text(f"{int(self.battle.currentDaoA.currentHP)} / {int(self.battle.currentDaoA.HP)}" if self.battle.currentDaoA.currentHP > 0 else "Defeated", self.daoA_hptext, TEXT_COLOR)
-		self.show_text(f"LV: {"◊" * self.battle.currentDaoA.level} {self.battle.currentDaoA.name}", self.daoA_name, TEXT_COLOR)
+		self.show_text(f"{self.battle.currentDaoA.name} {"◊" * self.battle.currentDaoA.level}", self.daoA_name, TEXT_COLOR)
 		self.show_text(f"+{self.battle.initA}", self.daoA_init, TEXT_COLOR)
+		self.show_type_icon(self.battle.currentDaoA.type1, TYPE_ICON1_A_POS_X, TYPE_ICON1_A_POS_Y)
+		if self.battle.currentDaoA.type2 != "":
+			self.show_type_icon(self.battle.currentDaoA.type2, TYPE_ICON2_A_POS_X, TYPE_ICON2_A_POS_Y)
 
 		self.daoB_hpsize = self.daoB_hpsize + (self.battle.currentDaoB.currentHP - self.daoB_hpsize) * (0.05)
 		self.show_bar(int(self.battle.currentDaoB.currentHP), int(self.battle.currentDaoB.HP), self.daoB_hpsize, self.daoB_hpbar, HP_COLOR, HP_SHADOW_COLOR)
 		self.show_text(f"{int(self.battle.currentDaoB.currentHP)} / {int(self.battle.currentDaoB.HP)}" if self.battle.currentDaoB.currentHP > 0 else "Defeated", self.daoB_hptext, TEXT_COLOR)
-		self.show_text(f"LV: {"◊" * self.battle.currentDaoB.level} {self.battle.currentDaoB.name}", self.daoB_name, TEXT_COLOR)
+		self.show_text(f"{self.battle.currentDaoB.name} {"◊" * self.battle.currentDaoB.level}", self.daoB_name, TEXT_COLOR)
 		self.show_text(f"+{self.battle.initB}", self.daoB_init, TEXT_COLOR)
+		self.show_type_icon(self.battle.currentDaoB.type1, TYPE_ICON1_B_POS_X, TYPE_ICON1_B_POS_Y)
+		if self.battle.currentDaoB.type2 != "":
+			self.show_type_icon(self.battle.currentDaoB.type2, TYPE_ICON2_B_POS_X, TYPE_ICON2_B_POS_Y)
 
 		# Situacional UI
 		if self.battle.state == Battle.MAIN_MENU:
 			self.show_button_UI("B", Input().B, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_B_X, BUTTON_B_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
-			self.show_button_UI("X", Input().X, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_X_X, BUTTON_X_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
-
 			self.show_button("Summon", TEXT_COLOR, self.button_rect_B, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+
+			self.show_button_UI("X", Input().X, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_X_X, BUTTON_X_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 			self.show_button("Fight", TEXT_COLOR, self.button_rect_X, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 
+			# self.show_button_UI("A", Input().A, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_A_X, BUTTON_A_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			# self.show_button("Give up", RED_TEXT_COLOR, self.button_rect_A, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+
 		elif self.battle.state == Battle.FIGHT_MENU:
-			self.show_button_UI("A", Input().A, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_A_X, BUTTON_A_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
-			self.show_button_UI("B", Input().B, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_B_X, BUTTON_B_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
-			self.show_button_UI("X", Input().X, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_X_X, BUTTON_X_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 			self.show_button_UI("Y", Input().Y, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_Y_X, BUTTON_Y_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
-			
 			moveY = self.battle.currentDaoA.moves[0].name if 0 < len(self.battle.currentDaoA.moves) else "Move Y"
 			self.show_button(moveY, TEXT_COLOR, self.button_rect_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 
+			self.show_button_UI("X", Input().X, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_X_X, BUTTON_X_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 			moveX = self.battle.currentDaoA.moves[1].name if 0 < len(self.battle.currentDaoA.moves) else "Move X"
 			self.show_button(moveX, TEXT_COLOR, self.button_rect_X, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 
+			self.show_button_UI("B", Input().B, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_B_X, BUTTON_B_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 			moveB = self.battle.currentDaoA.moves[2].name if 0 < len(self.battle.currentDaoA.moves) else "Move B"
 			self.show_button(moveB, TEXT_COLOR, self.button_rect_B, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 
+			self.show_button_UI("A", Input().A, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_A_X, BUTTON_A_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 			moveA = self.battle.currentDaoA.moves[3].name if 0 < len(self.battle.currentDaoA.moves) else "Move A"
 			self.show_button(moveA, TEXT_COLOR, self.button_rect_A, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 
 		elif self.battle.state == Battle.SUMMON_MENU:
-			dao_A = f"LV:{self.battle.battleListA[0].level} {self.battle.battleListA[0].name}" if len(self.battle.battleListA) > 0 else ""
+			# Button A
+			dao_A_type1 = self.battle.battleListA[0].type1 if len(self.battle.battleListA) > 0 else ""
+			dao_A_type2 = self.battle.battleListA[0].type2 if len(self.battle.battleListA) > 0 else ""
+			dao_A = f"◊ {self.battle.battleListA[0].level}x {self.battle.battleListA[0].name}" if len(self.battle.battleListA) > 0 else ""
+			self.show_button(dao_A, TEXT_COLOR if (len(self.battle.battleListA) > 0 and self.battle.battleListA[0].currentHP > 0) else RED_TEXT_COLOR, self.button_rect_A, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS, type1= dao_A_type1, type2= dao_A_type2)
 			self.show_button_UI("A", Input().A, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_A_X, BUTTON_A_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
-			self.show_button(dao_A, TEXT_COLOR, self.button_rect_A, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 
-			dao_B = f"LV:{self.battle.battleListA[1].level} {self.battle.battleListA[1].name}" if len(self.battle.battleListA) > 1 else ""
-			self.show_button(dao_B, TEXT_COLOR, self.button_rect_B, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			# Button B
+			dao_B_type1 = self.battle.battleListA[1].type1 if len(self.battle.battleListA) > 1 else ""
+			dao_B_type2 = self.battle.battleListA[1].type2 if len(self.battle.battleListA) > 1 else ""
+			dao_B = f"◊ {self.battle.battleListA[1].level}x {self.battle.battleListA[1].name}" if len(self.battle.battleListA) > 1 else ""
+			self.show_button(dao_B, TEXT_COLOR if (len(self.battle.battleListA) > 1 and self.battle.battleListA[1].currentHP > 0) else RED_TEXT_COLOR, self.button_rect_B, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS, type1= dao_B_type1, type2= dao_B_type2)
 			self.show_button_UI("B", Input().B, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_B_X, BUTTON_B_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 
-			dao_X = f"LV:{self.battle.battleListA[2].level} {self.battle.battleListA[2].name}" if len(self.battle.battleListA) > 2 else ""
-			self.show_button(dao_X, TEXT_COLOR, self.button_rect_X, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			# Button X
+			dao_X_type1 = self.battle.battleListA[2].type1 if len(self.battle.battleListA) > 2 else ""
+			dao_X_type2 = self.battle.battleListA[2].type2 if len(self.battle.battleListA) > 2 else ""
+			dao_X = f"◊ {self.battle.battleListA[2].level}x {self.battle.battleListA[2].name}" if len(self.battle.battleListA) > 2 else ""
+			self.show_button(dao_X, TEXT_COLOR if (len(self.battle.battleListA) > 2 and self.battle.battleListA[2].currentHP > 0) else RED_TEXT_COLOR, self.button_rect_X, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS, type1= dao_X_type1, type2= dao_X_type2)
 			self.show_button_UI("X", Input().X, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_X_X, BUTTON_X_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 
-			dao_Y = f"LV:{self.battle.battleListA[3].level} {self.battle.battleListA[3].name}" if len(self.battle.battleListA) > 3 else ""
-			self.show_button(dao_Y, TEXT_COLOR, self.button_rect_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			# Button Y
+			dao_Y_type1 = self.battle.battleListA[3].type1 if len(self.battle.battleListA) > 3 else ""
+			dao_Y_type2 = self.battle.battleListA[3].type2 if len(self.battle.battleListA) > 3 else ""
+			dao_Y = f"◊ {self.battle.battleListA[3].level}x {self.battle.battleListA[3].name}" if len(self.battle.battleListA) > 3 else ""
+			self.show_button(dao_Y, TEXT_COLOR if (len(self.battle.battleListA) > 3 and self.battle.battleListA[3].currentHP > 0) else RED_TEXT_COLOR, self.button_rect_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS, type1= dao_Y_type1, type2= dao_Y_type2)
 			self.show_button_UI("Y", Input().Y, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_Y_X, BUTTON_Y_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 
-			dao_L = f"LV:{self.battle.battleListA[4].level} {self.battle.battleListA[4].name}" if len(self.battle.battleListA) > 4 else ""
-			self.show_button(dao_L, TEXT_COLOR, self.button_rect_L, BUTTON_ABXY_RADIUS, 0)
+			# Button L
+			dao_L_type1 = self.battle.battleListA[4].type1 if len(self.battle.battleListA) > 4 else ""
+			dao_L_type2 = self.battle.battleListA[4].type2 if len(self.battle.battleListA) > 4 else ""
+			dao_L = f"◊ {self.battle.battleListA[4].level}x {self.battle.battleListA[4].name}" if len(self.battle.battleListA) > 4 else ""
+			self.show_button(dao_L, TEXT_COLOR if (len(self.battle.battleListA) > 4 and self.battle.battleListA[4].currentHP > 0) else RED_TEXT_COLOR, self.button_rect_L, BUTTON_ABXY_RADIUS, 0, type1= dao_L_type1, type2= dao_L_type2)
 			self.show_button_UI("L", Input().L, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_L_X, BUTTON_L_Y, 0, BUTTON_ABXY_RADIUS)
 
-			dao_R = f"LV:{self.battle.battleListA[5].level} {self.battle.battleListA[5].name}" if len(self.battle.battleListA) > 5 else ""
-			self.show_button(dao_R, TEXT_COLOR, self.button_rect_R, 0, BUTTON_ABXY_RADIUS)
+			# Button R
+			dao_R_type1 = self.battle.battleListA[5].type1 if len(self.battle.battleListA) > 5 else ""
+			dao_R_type2 = self.battle.battleListA[5].type2 if len(self.battle.battleListA) > 5 else ""
+			dao_R = f"◊ {self.battle.battleListA[5].level}x {self.battle.battleListA[5].name}" if len(self.battle.battleListA) > 5 else ""
+			self.show_button(dao_R, TEXT_COLOR if (len(self.battle.battleListA) > 5 and self.battle.battleListA[5].currentHP > 0) else RED_TEXT_COLOR, self.button_rect_R, 0, BUTTON_ABXY_RADIUS, type1= dao_R_type1, type2= dao_R_type2)
 			self.show_button_UI("R", Input().R, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_R_X, BUTTON_R_Y, BUTTON_ABXY_RADIUS, 0)
 
 		elif self.battle.state == Battle.TEXT_ON_SCREEN:

@@ -41,30 +41,33 @@ def getDao(archiveName: str, ID):
     return selectedDao
 
 def generateTypeChart(archiveName: str):
-    effectivenessChart = {}
+    typeChart = {}
 
     with open(archiveName, 'r') as File:
         result = csv.reader(File)
         for line in result:
-            effectivenessChart[line[0]] = {
-                'Normal' : float(line[1]), 
-                'Fire' : float(line[2]), 
-                'Water' : float(line[3]), 
-                'Electric' : float(line[4]), 
-                'Grass' : float(line[5]), 
-                'Ice' : float(line[6]), 
-                'Fighting' : float(line[7]), 
-                'Poison' : float(line[8]), 
-                'Ground' : float(line[9]), 
-                'Flying' : float(line[10]), 
-                'Psychic' : float(line[11]), 
-                'Bug' : float(line[12]), 
-                'Rock' : float(line[13]), 
-                'Ghost' : float(line[14]), 
-                'Dragon' : float(line[15]), 
-                'Dark' : float(line[16]), 
-                'Steel' : float(line[17]), 
-                'Fairy' : float(line[18])
+            typeChart[line[0]] = {
+                'Fire' : float(line[1]),
+                'Water' : float(line[2]),
+                'Earth' : float(line[3]),
+                'Air' : float(line[4]),
+                'Thunder' : float(line[5]),
+                'Light' : float(line[6]),
+                'Darkness' : float(line[7]),
+                'Bestial' : float(line[8]),
+                'Ethereal' : float(line[9]),
+                'Machine' : float(line[10]),
+                'Undead' : float(line[11]),
                 }
     
-    return effectivenessChart
+    return typeChart
+
+def generateColorChart(archiveName: str):
+    typeChart = {}
+
+    with open(archiveName, 'r') as File:
+        result = csv.reader(File)
+        for line in result:
+            typeChart[line[0]] = line[1]
+    
+    return typeChart

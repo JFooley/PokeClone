@@ -52,6 +52,11 @@ class Battle():
             self.initA = 0
             self.initB = 0
 
+            for dao in self.currentDaoA:
+                dao.set_sprits()
+            for dao in self.currentDaoB:
+                dao.set_sprits()
+
             self.state = Battle.INTRO
 
     def End(self):

@@ -52,10 +52,12 @@ class Battle():
             self.initA = 0
             self.initB = 0
 
-            for dao in self.currentDaoA:
-                dao.set_sprits()
+            for daoA in self.currentDaoA:
+                daoA.set_sprits()
+                daoA.on_screen = True
             for dao in self.currentDaoB:
-                dao.set_sprits()
+                daoB.set_sprits()
+                daoB.on_screen = True
 
             self.state = Battle.INTRO
 
@@ -80,8 +82,7 @@ class Battle():
             emptyMove = Move()
             emptyMove = Move()
 
-        # Apply your effects
-
+        # Apply effects
     
     def Summon(self, guider, daoIndex: int):
         if guider == Battle.YOU:
@@ -110,11 +111,6 @@ class Battle():
     def Damage(self, atacker: Dao, defender: Dao, move: Move, effeChart: dict):
         # Random crit hit
         CRIT = 2.0 if random.uniform(0, 100) < 6.25 else 1.0
-
-        # Check fragile
-        for effect in atacker.effects:
-            if effect.type == Effect.FRAGILE:
-                CRIT = 2.0
 
         # Check the Same Type Atack Bonus (STAB)
         STAB = 1.5 if move.type == atacker.type1 or move.type == defender.type2 else 1.0

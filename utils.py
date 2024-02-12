@@ -91,19 +91,15 @@ def generateRandomMove(archiveName, type= "default"):
         return random.choice(same_type_list)
 
 def find_images_paths(path, name):
-    # Inicializar lista para armazenar os caminhos das imagens
     caminhos_imagens = []
     
     # Listar arquivos no diretório
     arquivos = os.listdir(path)
     
-    # Iterar sobre os arquivos no diretório
     for arquivo in arquivos:
         # Verificar se o arquivo é uma imagem e se corresponde ao padrão
         if re.match(rf"{name}-\d+\.png$", arquivo):
-            # Construir o caminho completo do arquivo
             caminho_completo = os.path.join(path, arquivo)
-            # Adicionar o caminho à lista
             caminhos_imagens.append(caminho_completo)
     
     # Ordenar os caminhos das imagens de acordo com o número no nome do arquivo

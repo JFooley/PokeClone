@@ -1,4 +1,4 @@
-import csv
+import csv, random, os, re
 from classes import Dao, Move
 
 def generateMoves(archiveName: str):
@@ -6,7 +6,7 @@ def generateMoves(archiveName: str):
     with open(archiveName, 'r') as File:
         result = csv.reader(File)
         for line in result:
-            move = Move(line[0], line[1], line[2], line[3], line[4], int(line[5]), float(line[6]), uses= 0, level= 1, effect=[])
+            move = Move(line[0], line[1], line[2], line[3], line[4], int(line[5]), float(line[6]), uses= 0, level= 1)
             moveChart[line[1]] = move
             moveChart[line[0]] = move
     
@@ -17,7 +17,7 @@ def getMove(archiveName: str, ID):
         result = csv.reader(File)
         for line in result:
             if line[0] == ID:
-                selectedMove = Move(line[0], line[1], line[2], line[3], line[4], int(line[5]), float(line[6]), uses= 0, level= 1, effect=[])
+                selectedMove = Move(line[0], line[1], line[2], line[3], line[4], int(line[5]), float(line[6]), uses= 0, level= 1)
     
     return selectedMove
 
@@ -71,3 +71,42 @@ def generateColorChart(archiveName: str):
             typeChart[line[0]] = line[1]
     
     return typeChart
+
+def generateRandomDao(archiveName, level= 1):
+    pass
+
+def generateRandomMove(archiveName, type= "default"):
+    move_chart = generateMoves(archiveName)
+
+    if type == "default":
+        move_list = list(move_chart.values())
+        return random.choice(move_list)
+    
+    else:
+        same_type_list = []
+        for move in move_chart.values():
+            if move.type == type:
+                same_type_list.append(move)
+
+        return random.choice(same_type_list)
+
+def find_images_paths(path, name):
+    # Inicializar lista para armazenar os caminhos das imagens
+    caminhos_imagens = []
+    
+    # Listar arquivos no diretório
+    arquivos = os.listdir(path)
+    
+    # Iterar sobre os arquivos no diretório
+    for arquivo in arquivos:
+        # Verificar se o arquivo é uma imagem e se corresponde ao padrão
+        if re.match(rf"{name}-\d+\.png$", arquivo):
+            # Construir o caminho completo do arquivo
+            caminho_completo = os.path.join(path, arquivo)
+            # Adicionar o caminho à lista
+            caminhos_imagens.append(caminho_completo)
+    
+    # Ordenar os caminhos das imagens de acordo com o número no nome do arquivo
+    caminhos_imagens.sort(key=lambda x: int(re.search(rf"{name}-(\d+)\.png$", x).group(1)))
+    
+    return caminhos_imagens

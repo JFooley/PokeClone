@@ -17,12 +17,16 @@ class Battle():
     FIGHT_MENU = 'fgt'
     SUMMON_MENU = 'smn'
     TEXT_ON_SCREEN = 'txt'
+    PRE_DUEL = "prdu"
+    POST_DUEL = "podu"
     END = 'end'
 
 
     def __init__(self):
         self.guiderA = None
         self.guiderB = None
+        self.originalListA: list = []
+        self.originalListB: list = []
         self.battleListA: list = []
         self.battleListB: list = []
         
@@ -36,6 +40,9 @@ class Battle():
 
     def Start(self, guiderA: Guider, guiderB: Guider):
         if self.state == self.DEFAULT:
+            self.originalListA = guiderA.daos_list
+            self.originalListB = guiderB.daos_list
+
             self.battleListA = copy.deepcopy(guiderA.daos_list)
             self.battleListB = copy.deepcopy(guiderB.daos_list)
 

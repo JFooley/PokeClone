@@ -67,7 +67,7 @@ class Input:
             self.left = pygame.K_LEFT
             self.right = pygame.K_RIGHT
             self.start = pygame.K_SPACE
-            self.select = pygame.K_m
+            self.select = pygame.K_RETURN
             self.L = pygame.K_q
             self.R = pygame.K_e
             self.A = pygame.K_s

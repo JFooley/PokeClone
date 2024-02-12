@@ -12,6 +12,13 @@ UI_FONT = './Assets/fonts/Default.ttf'
 UI_FONT_SIZE = HALF_UNIT * 2 // 5
 TYPE_FONT_SIZE = HALF_UNIT // 3
 
+# Daos sprites
+DAO_A_POS_X = UNIT * 2 + HALF_UNIT
+DAO_A_POS_Y = HEIGTH // 2
+
+DAO_B_POS_X = WIDTH - DAO_A_POS_X
+DAO_B_POS_Y = HEIGTH // 2
+
 # HP bars
 HP_BAR_WIDTH = UNIT * 4
 BAR_HEIGHT = HALF_UNIT // 2

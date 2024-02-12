@@ -1,4 +1,16 @@
+import pygame
+from pygame import Rect
+
 class Dao:
+	IDLE = 0
+	PRE_MAGIC = 1
+	POST_MAGIC = 2
+	PRE_PHYSICAL = 4
+	POST_PHYSICAL = 5
+	GET_HIT = 6
+	CRITICAL_GET_HIT = 7
+	DEFEATED = 8
+
 	def __init__(self, id, name, level: int, type1, type2, moves: list, STR: int, RES: int, POW: int, MRES: int, AGI: int, HP: int, currentHP: int, summon_text= f"Eu invoco você!"):
 		self.id = id
 		self.name = name
@@ -18,75 +30,158 @@ class Dao:
 		self.effects: list = []
 		self.summon_text = summon_text
             
-		self.state = "idle"
-	
-	def checkEffects(self):
-		condition = []
-		for effect in self.effects:
-			if effect.type != Effect.DEFAULT and effect.type != Effect.CONTINOUS:
-				condition.append(effect.type)
+		self.state = self.IDLE
 
-		return condition
+		self.sprites = {}
+		self.current_frame = 0
+		self.on_screen = False
+
+	def addEffect(self, effect):
+		pass
+
+	def applyEffect(self):
+		pass
+      
+	def clearEffect(self):
+		self.effects.clear()
+
+	def set_sprits(self):
+		from utils import find_images_paths
+		base_path = "Assets/daos/" + self.id + "/"
+		
+		# IDLE
+		self.sprites[self.IDLE] = []
+		idle_paths = find_images_paths(base_path, "idle")
+		for path in idle_paths:
+			sprite = pygame.image.load(path)
+			self.sprites[self.IDLE].append(sprite)
+
+		# PRE MAGIC
+		self.sprites[self.PRE_MAGIC] = []
+		idle_paths = find_images_paths(base_path, "pre_magic")
+		for path in idle_paths:
+			sprite = pygame.image.load(path)
+			self.sprites[self.IDLE].append(sprite)
+
+		# POST MAGIC
+		self.sprites[self.POST_MAGIC] = []
+		idle_paths = find_images_paths(base_path, "post_magic")
+		for path in idle_paths:
+			sprite = pygame.image.load(path)
+			self.sprites[self.IDLE].append(sprite)
+
+		# PRE PHYSICAL
+		self.sprites[self.PRE_PHYSICAL] = []
+		idle_paths = find_images_paths(base_path, "pret_physical")
+		for path in idle_paths:
+			sprite = pygame.image.load(path)
+			self.sprites[self.IDLE].append(sprite)
+
+		# POST PHYSICAL
+		self.sprites[self.POST_PHYSICAL] = []
+		idle_paths = find_images_paths(base_path, "post_physical")
+		for path in idle_paths:
+			sprite = pygame.image.load(path)
+			self.sprites[self.IDLE].append(sprite)
+
+		# GET HIT
+		self.sprites[self.GET_HIT] = []
+		idle_paths = find_images_paths(base_path, "get_hit")
+		for path in idle_paths:
+			sprite = pygame.image.load(path)
+			self.sprites[self.IDLE].append(sprite)
+		
+		# CRITICAL GET HIT
+		self.sprites[self.CRITICAL_GET_HIT] = []
+		idle_paths = find_images_paths(base_path, "critical_get_hit")
+		for path in idle_paths:
+			sprite = pygame.image.load(path)
+			self.sprites[self.IDLE].append(sprite)
+		
+		# DEFEATED
+		self.sprites[self.DEFEATED] = []
+		idle_paths = find_images_paths(base_path, "defeated")
+		for path in idle_paths:
+			sprite = pygame.image.load(path)
+			self.sprites[self.IDLE].append(sprite)
+
+	def show_dao(self, surface, pos_X, pos_Y, side= "A"):
+		if self.on_screen == True:
+			if self.state == self.IDLE:
+				sprite = self.sprites[self.IDLE][self.current_frame]
+				width, heigth = sprite.get_size()
+				if side == "B":
+					sprite = pygame.transform.flip(sprite, True, False)
+				surface.blit(sprite, (pos_X - (width // 2), pos_Y - (heigth // 2)))
+				self.current_frame = self.current_frame + 1 if (self.current_frame + 1) < len(self.sprites[self.IDLE]) else 0
 			
-class Effect: 
-	DEFAULT = "default"
-	POISON = "poison"
-	FREEZE = "freeze"
-	FRAGILE = "fragile"
-	CONTINOUS = "continuous effect"
+			elif self.state == self.PRE_MAGIC:
+				sprite = self.sprites[self.PRE_MAGIC][self.current_frame]
+				width, heigth = sprite.get_size()
+				if side == "B":
+					sprite = pygame.transform.flip(sprite, True, False)
+				surface.blit(sprite, (pos_X - (width // 2), pos_Y - (heigth // 2)))
+				self.current_frame += 1 if (self.current_frame + 1) < len(self.sprites[self.PRE_MAGIC]) else 0
 
-	def __init__(self, type, HP, STR, RES, POW, MRES, AGI, INIT: int, foeHP, foeSTR, foeRES, foePOW, foeMRES, foeAGI, foeINIT: int):
-		self.type = type if type != '' else Effect.DEFAULT
-		self.turn = 0
+			elif self.state == self.POST_MAGIC:
+				sprite = self.sprites[self.POST_MAGIC][self.current_frame]
+				width, heigth = sprite.get_size()
+				if side == "B":
+					sprite = pygame.transform.flip(sprite, True, False)
+				surface.blit(sprite, (pos_X - (width // 2), pos_Y - (heigth // 2)))
+				self.current_frame += 1 if (self.current_frame + 1) < len(self.sprites[self.POST_MAGIC]) else 0
+								
+			elif self.state == self.PRE_PHYSICAL:
+				sprite = self.sprites[self.PRE_PHYSICAL][self.current_frame]
+				width, heigth = sprite.get_size()
+				if side == "B":
+					sprite = pygame.transform.flip(sprite, True, False)
+				surface.blit(sprite, (pos_X - (width // 2), pos_Y - (heigth // 2)))
+				self.current_frame += 1 if (self.current_frame + 1) < len(self.sprites[self.PRE_PHYSICAL]) else 0
+								
+			elif self.state == self.POST_PHYSICAL:
+				sprite = self.sprites[self.POST_PHYSICAL][self.current_frame]
+				width, heigth = sprite.get_size()
+				if side == "B":
+					sprite = pygame.transform.flip(sprite, True, False)
+				surface.blit(sprite, (pos_X - (width // 2), pos_Y - (heigth // 2)))
+				self.current_frame += 1 if (self.current_frame + 1) < len(self.sprites[self.POST_PHYSICAL]) else 0
+								
+			elif self.state == self.GET_HIT:
+				sprite = self.sprites[self.GET_HIT][self.current_frame]
+				width, heigth = sprite.get_size()
+				if side == "B":
+					sprite = pygame.transform.flip(sprite, True, False)
+				surface.blit(sprite, (pos_X - (width // 2), pos_Y - (heigth // 2)))
+				self.current_frame += 1 if (self.current_frame + 1) < len(self.sprites[self.GET_HIT]) else 0
+								
+			elif self.state == self.CRITICAL_GET_HIT:
+				sprite = self.sprites[self.CRITICAL_GET_HIT][self.current_frame]
+				width, heigth = sprite.get_size()
+				if side == "B":
+					sprite = pygame.transform.flip(sprite, True, False)
+				surface.blit(sprite, (pos_X - (width // 2), pos_Y - (heigth // 2)))
+				self.current_frame += 1 if (self.current_frame + 1) < len(self.sprites[self.CRITICAL_GET_HIT]) else 0
+								
+			elif self.state == self.DEFEATED:
+				sprite = self.sprites[self.DEFEATED][self.current_frame]
+				width, heigth = sprite.get_size()
+				if side == "B":
+					sprite = pygame.transform.flip(sprite, True, False)
+				surface.blit(sprite, (pos_X - (width // 2), pos_Y - (heigth // 2)))
+				self.current_frame += 1 if (self.current_frame + 1) < len(self.sprites[self.DEFEATED]) else 0
 
-		self.HP = HP
-		self.STR = STR
-		self.RES = RES
-		self.POW = POW
-		self.MRES = MRES
-		self.AGI = AGI
-		self.INIT = INIT
+class Effect:
+	EMPTY = "empty"
 
-		self.foeHP = foeHP
-		self.foeSTR = foeSTR
-		self.foeRES = foeRES
-		self.foePOW = foePOW
-		self.foeMRES = foeMRES
-		self.foeAGI = foeAGI
-		self.foeINIT = foeINIT
-	
-	def applyStats(self, dao: Dao, foe: Dao):
-		dao.HP += (self.HP * dao.HP) // 100
-		dao.currentHP += (self.HP * dao.HP) // 100
-		dao.STR += (self.STR * dao.STR) // 100
-		dao.POW += (self.POW * dao.POW) // 100
-		dao.RES += (self.RES * dao.RES) // 100
-		dao.MRES += (self.MRES * dao.MRES) // 100
-		dao.AGI += (self.AGI * dao.AGI) // 100
-
-		foe.HP += (self.foeHP * foe.HP) // 100
-		foe.currentHP += (self.foeHP * foe.HP) // 100
-		foe.STR += (self.foeSTR * foe.STR) // 100
-		foe.POW += (self.foePOW * foe.POW) // 100
-		foe.RES += (self.foeRES * foe.RES) // 100
-		foe.MRES += (self.foeMRES * foe.MRES) // 100
-		foe.AGI += (self.foeAGI * foe.AGI) // 100
-
-		return dao, foe
-	
-	def applyInit(self, init, foeInit):
-		init += self.INIT
-		foeInit += self.foeINIT
-
-		return init, foeInit
-	
 class Move:
-	def __init__(self, id, name, text, type, kind, power: int, accuracy: float, uses: int, level: int, effect: list):
+	def __init__(self, id, name, text, type, kind, power: int, accuracy: float, uses: int, level: int, effect= ""):
 		self.id = id
 		self.name = name
 		self.text = text
 		self.type = type 
 		self.kind = kind
+		self.base_power = power
 		self.power = power
 		self.accuracy = accuracy
 		self.uses = uses
@@ -111,3 +206,4 @@ class  Guider:
         for ID in daos_ID_list:
             single_dao = getDao(archiveName= archiveName, ID= ID)
             self.daos_list.append(single_dao)
+

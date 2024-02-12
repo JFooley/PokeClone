@@ -53,6 +53,7 @@ class BattleUI:
 
 		# Listas
 		self.daos = generateDaos(archiveName= os.path.join("Data", "Daos.csv"))
+		self.moves = generateMoves(archiveName= os.path.join("Data", "Moves.csv"))
 
 	def run(self):
 		if self.battle.state == Battle.INTRO:
@@ -72,8 +73,6 @@ class BattleUI:
 					self.battle.state = Battle.FIGHT_MENU
 				elif Input().key_up(key_code= Input().B):
 					self.battle.state = Battle.SUMMON_MENU
-				# elif Input().key_up(key_code= Input().A):
-				# 	self.battle.state = Battle.END
 
 			# BATTLE MENU
 			elif self.game.state == 1 and self.battle.state == Battle.FIGHT_MENU:
@@ -135,19 +134,31 @@ class BattleUI:
 						self.battle.state = Battle.TEXT_ON_SCREEN
 
 		### PROVISÓRIO ###
-		if self.game.state == 0 and Input().key_down(key_code= Input().start):
-			daoA1 = self.daos['6']
+			if Input().key_down(key_code= Input().start):
+				self.battle.currentDaoA.set_sprits()
+				self.battle.currentDaoB.set_sprits()
+				self.battle.currentDaoA.on_screen = True
+				self.battle.currentDaoB.on_screen = True
+
+		if self.game.state == 0 and Input().key_down(key_code= Input().select):
+			daoA1: Dao = self.daos['6']
 			daoA2 = self.daos['106']
 			daoA3 = self.daos['215']
 			daoA4 = self.daos['122']
 			daoA5 = self.daos['200']
+			
 			daoA1.level = 5
 			daoA2.level = 10
 			daoA3.level = 3
 			daoA4.level = 8
 			daoA5.level = 2
+
 			daoA1.summon_text = f"Nascido do fogo e da forja, eu clamo por seu poder, surja! {daoA1.name}!"
 			daoA2.summon_text = f"Sua força é inigualável, invoco o seu espirito! venha {daoA2.name}!"
+
+			daoA1.moves.append(self.moves["1"])
+			daoA1.moves.append(self.moves["10"])
+			daoA1.moves.append(self.moves["52"])
 
 			self.game.player.Insert_dao(daoA1)
 			self.game.player.Insert_dao(daoA2)
@@ -155,20 +166,22 @@ class BattleUI:
 			self.game.player.Insert_dao(daoA4)
 			self.game.player.Insert_dao(daoA5)
 
-			daoB1 = self.daos['3']
+			daoB1 = self.daos['6']
 			daoB2 = self.daos['20']
 			daoB3 = self.daos['30']
 			enemy = Guider("Enemy", 0, {}, [daoB1, daoB2, daoB3])
 
 			self.battle.Start(self.game.player, enemy)
 
-		elif self.game.state == 1 and Input().key_down(key_code= Input().start):
+		elif self.game.state == 1 and Input().key_down(key_code= Input().select):
 			self.battle.End()
 
 		if self.game.state == 1 and Input().key_down(key_code= Input().up):
 			self.battle.currentDaoA.currentHP += 30
+
 		elif self.game.state == 1 and Input().key_down(key_code= Input().down):
 			self.battle.currentDaoA.currentHP -= 45
+
 		### PROVISÓRIO ###
 
 	def show_bar(self, current, max_amount, shadow_value, bg_rect: Rect, color, shadow_color):
@@ -264,6 +277,7 @@ class BattleUI:
 		# Draw bg
 		pygame.draw.rect(self.display_surface, self.colorChart[type], rect, border_radius=(TYPE_ICON_HEIGTH // 2))
 
+		# Contorno
 		# pygame.draw.rect(self.display_surface, TEXT_COLOR, rect, border_radius=(TYPE_ICON_HEIGTH // 2), width= TYPE_ICON_HEIGTH // 10)
 		
 		# Text offset
@@ -335,6 +349,10 @@ class BattleUI:
 		if self.battle.currentDaoB.type2 != "":
 			self.show_type_icon(self.battle.currentDaoB.type2, TYPE_ICON2_B_POS_X, TYPE_ICON2_B_POS_Y)
 
+		# Daos sprites
+		self.battle.currentDaoA.show_dao(self.display_surface, DAO_A_POS_X, DAO_A_POS_Y, side="B")
+		self.battle.currentDaoB.show_dao(self.display_surface, DAO_B_POS_X, DAO_B_POS_Y, side="A")
+
 		# Situacional UI
 		if self.battle.state == Battle.MAIN_MENU:
 			self.show_button_UI("B", Input().B, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_B_X, BUTTON_B_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
@@ -348,20 +366,20 @@ class BattleUI:
 
 		elif self.battle.state == Battle.FIGHT_MENU:
 			self.show_button_UI("Y", Input().Y, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_Y_X, BUTTON_Y_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
-			moveY = self.battle.currentDaoA.moves[0].name if 0 < len(self.battle.currentDaoA.moves) else "Move Y"
-			self.show_button(moveY, TEXT_COLOR, self.button_rect_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			moveY = self.battle.currentDaoA.moves[0].name if 0 < len(self.battle.currentDaoA.moves) else ""
+			self.show_button(moveY, TEXT_COLOR, self.button_rect_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS, type1= self.battle.currentDaoA.moves[0].type if len(self.battle.currentDaoA.moves) > 0 else "")
 
 			self.show_button_UI("X", Input().X, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_X_X, BUTTON_X_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
-			moveX = self.battle.currentDaoA.moves[1].name if 0 < len(self.battle.currentDaoA.moves) else "Move X"
-			self.show_button(moveX, TEXT_COLOR, self.button_rect_X, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			moveX = self.battle.currentDaoA.moves[1].name if 1 < len(self.battle.currentDaoA.moves) else ""
+			self.show_button(moveX, TEXT_COLOR, self.button_rect_X, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS, type1= self.battle.currentDaoA.moves[1].type if len(self.battle.currentDaoA.moves) > 1 else "")
 
 			self.show_button_UI("B", Input().B, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_B_X, BUTTON_B_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
-			moveB = self.battle.currentDaoA.moves[2].name if 0 < len(self.battle.currentDaoA.moves) else "Move B"
-			self.show_button(moveB, TEXT_COLOR, self.button_rect_B, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			moveB = self.battle.currentDaoA.moves[2].name if 2 < len(self.battle.currentDaoA.moves) else ""
+			self.show_button(moveB, TEXT_COLOR, self.button_rect_B, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS, type1= self.battle.currentDaoA.moves[2].type if len(self.battle.currentDaoA.moves) > 2 else "")
 
 			self.show_button_UI("A", Input().A, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_A_X, BUTTON_A_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
-			moveA = self.battle.currentDaoA.moves[3].name if 0 < len(self.battle.currentDaoA.moves) else "Move A"
-			self.show_button(moveA, TEXT_COLOR, self.button_rect_A, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
+			moveA = self.battle.currentDaoA.moves[3].name if 3 < len(self.battle.currentDaoA.moves) else ""
+			self.show_button(moveA, TEXT_COLOR, self.button_rect_A, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS, type1= self.battle.currentDaoA.moves[3].type if len(self.battle.currentDaoA.moves) > 3 else "")
 
 		elif self.battle.state == Battle.SUMMON_MENU:
 			# Button A
@@ -466,4 +484,3 @@ class BattleUI:
 
 		pygame.draw.polygon(surface= self.display_surface, color= "#854a4a", points= [R1, R2, R3])
 		pygame.draw.polygon(surface= self.display_surface, color= "#854a4a", points= [R1, R3, R4])
-

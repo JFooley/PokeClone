@@ -81,39 +81,7 @@ class Battle():
             emptyMove = Move()
 
         # Apply your effects
-        remainingEffects = []
-        for effect in self.currentDaoA.effects:
-            effect.applyInit(self.initA, self.initB)
-            effect.applyStats(self.currentDaoA, self.currentDaoB)
-            effect.turn += 1
 
-            # Treat continous effects
-            if effect.type == Effect.FREEZE and effect.turn >= 2:
-                continue # Removes the freeze effect in the 2° turn
-            elif effect.type == Effect.POISON and effect.turn >= 5:
-                continue # Removes the poison effect in the 5° turn
-            elif effect.type == Effect.CONTINOUS or effect.type == Effect.FREEZE or effect.type == Effect.POISON:
-                remainingEffects.append(effect)
-        else: # Finally
-            self.currentDaoA.effects = copy.deepcopy(remainingEffects)
-            remainingEffects.clear
-
-        # Apply foe effects
-        for effect in self.currentDaoB.effects:
-            effect.applyInit(self.initB, self.initA)
-            effect.applyStats(self.currentDaoB, self.currentDaoA)
-            effect.turn += 1
-
-            # Treat continous effects
-            if effect.type == Effect.FREEZE and effect.turn >= 2:
-                continue # Removes the freeze effect in the 2° turn
-            elif effect.type == Effect.POISON and effect.turn >= 5:
-                continue # Removes the poison effect in the 5° turn
-            if effect.type == Effect.CONTINOUS or effect.type == Effect.FREEZE or effect.type == Effect.POISON:
-                remainingEffects.append(effect)
-        else: # Finally
-            self.currentDaoB.effects = copy.deepcopy(remainingEffects)
-            remainingEffects.clear
     
     def Summon(self, guider, daoIndex: int):
         if guider == Battle.YOU:
@@ -131,12 +99,6 @@ class Battle():
 
         # Escolhe o numero que define quem ganha
         ResultRNG = random.uniform(0, ratePool)
-        
-        print("-" * 100)
-        print(f"{self.currentDaoA.name}: {(RateA // 100)} ({(RateA * 100) // ratePool}%)")
-        print("-- VS --")
-        print(f"{self.currentDaoB.name}: {(RateB // 100)} ({(RateB * 100) // ratePool}%)")
-        print("-" * 100)
 
         if ResultRNG < RateA:
             return "A"

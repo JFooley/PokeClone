@@ -1,15 +1,16 @@
 import pygame
-from pygame import Rect
+from animation import Animation
+from settings import ANIM_FPS_IDLE, ANIM_FPS_PRE_MAGIC, ANIM_FPS_POST_MAGIC, ANIM_FPS_PRE_PHYSICAL, ANIM_FPS_POST_PHYSICAL, ANIM_FPS_GET_HIT, ANIM_FPS_CRITICAL_GET_HIT, ANIM_FPS_DEFEATED
 
 class Dao:
 	IDLE = 0
 	PRE_MAGIC = 1
 	POST_MAGIC = 2
-	PRE_PHYSICAL = 4
-	POST_PHYSICAL = 5
-	GET_HIT = 6
-	CRITICAL_GET_HIT = 7
-	DEFEATED = 8
+	PRE_PHYSICAL = 3
+	POST_PHYSICAL = 4
+	GET_HIT = 5
+	CRITICAL_GET_HIT = 6
+	DEFEATED = 7
 
 	def __init__(self, id, name, level: int, type1, type2, moves: list, STR: int, RES: int, POW: int, MRES: int, AGI: int, HP: int, currentHP: int, summon_text= f"Eu invoco você!"):
 		self.id = id
@@ -33,7 +34,6 @@ class Dao:
 		self.state = self.IDLE
 
 		self.sprites = {}
-		self.current_frame = 0
 		self.on_screen = False
 
 	def addEffect(self, effect):
@@ -46,130 +46,73 @@ class Dao:
 		self.effects.clear()
 
 	def set_sprits(self):
-		from utils import find_images_paths
 		base_path = "Assets/daos/" + self.id + "/"
 		
 		# IDLE
-		self.sprites[self.IDLE] = []
-		idle_paths = find_images_paths(base_path, "idle")
-		for path in idle_paths:
-			sprite = pygame.image.load(path)
-			self.sprites[self.IDLE].append(sprite)
+		IDLE_anim = Animation(ANIM_FPS_IDLE)
+		IDLE_anim.set_images(base_path + "idle", "idle")
+		self.sprites[self.IDLE] = IDLE_anim
 
-		# PRE MAGIC
-		self.sprites[self.PRE_MAGIC] = []
-		idle_paths = find_images_paths(base_path, "pre_magic")
-		for path in idle_paths:
-			sprite = pygame.image.load(path)
-			self.sprites[self.IDLE].append(sprite)
-
-		# POST MAGIC
-		self.sprites[self.POST_MAGIC] = []
-		idle_paths = find_images_paths(base_path, "post_magic")
-		for path in idle_paths:
-			sprite = pygame.image.load(path)
-			self.sprites[self.IDLE].append(sprite)
-
-		# PRE PHYSICAL
-		self.sprites[self.PRE_PHYSICAL] = []
-		idle_paths = find_images_paths(base_path, "pret_physical")
-		for path in idle_paths:
-			sprite = pygame.image.load(path)
-			self.sprites[self.IDLE].append(sprite)
-
-		# POST PHYSICAL
-		self.sprites[self.POST_PHYSICAL] = []
-		idle_paths = find_images_paths(base_path, "post_physical")
-		for path in idle_paths:
-			sprite = pygame.image.load(path)
-			self.sprites[self.IDLE].append(sprite)
-
-		# GET HIT
-		self.sprites[self.GET_HIT] = []
-		idle_paths = find_images_paths(base_path, "get_hit")
-		for path in idle_paths:
-			sprite = pygame.image.load(path)
-			self.sprites[self.IDLE].append(sprite)
-		
-		# CRITICAL GET HIT
-		self.sprites[self.CRITICAL_GET_HIT] = []
-		idle_paths = find_images_paths(base_path, "critical_get_hit")
-		for path in idle_paths:
-			sprite = pygame.image.load(path)
-			self.sprites[self.IDLE].append(sprite)
-		
+		# PRE_MAGIC
+		PRE_MAGIC_anim = Animation(ANIM_FPS_PRE_MAGIC)
+		PRE_MAGIC_anim.set_images(base_path + "pre_magic", "pre_magic")
+		self.sprites[self.PRE_MAGIC] = PRE_MAGIC_anim
+				
+		# POST_MAGIC
+		POST_MAGIC_anim = Animation(ANIM_FPS_POST_MAGIC)
+		POST_MAGIC_anim.set_images(base_path + "post_magic", "post_magic")
+		self.sprites[self.POST_MAGIC] = POST_MAGIC_anim
+				
+		# PRE_PHYSICAL
+		PRE_PHYSICAL_anim = Animation(ANIM_FPS_PRE_PHYSICAL)
+		PRE_PHYSICAL_anim.set_images(base_path + "pre_physical", "pre_physical")
+		self.sprites[self.PRE_PHYSICAL] = PRE_PHYSICAL_anim
+				
+		# POST_PHYSICAL
+		POST_PHYSICAL_anim = Animation(ANIM_FPS_POST_PHYSICAL)
+		POST_PHYSICAL_anim.set_images(base_path + "post_physical", "post_physical")
+		self.sprites[self.POST_PHYSICAL] = POST_PHYSICAL_anim
+				
+		# GET_HIT
+		GET_HIT_anim = Animation(ANIM_FPS_GET_HIT)
+		GET_HIT_anim.set_images(base_path + "get_hit", "get_hit")
+		self.sprites[self.GET_HIT] = GET_HIT_anim
+				
+		# CRITICAL_GET_HIT
+		CRITICAL_GET_HIT_anim = Animation(ANIM_FPS_CRITICAL_GET_HIT)
+		CRITICAL_GET_HIT_anim.set_images(base_path + "critical_get_hit", "critical_get_hit")
+		self.sprites[self.CRITICAL_GET_HIT] = CRITICAL_GET_HIT_anim
+				
 		# DEFEATED
-		self.sprites[self.DEFEATED] = []
-		idle_paths = find_images_paths(base_path, "defeated")
-		for path in idle_paths:
-			sprite = pygame.image.load(path)
-			self.sprites[self.IDLE].append(sprite)
+		DEFEATED_anim = Animation(ANIM_FPS_DEFEATED)
+		DEFEATED_anim.set_images(base_path + "defeated", "defeated")
+		self.sprites[self.DEFEATED] = DEFEATED_anim
 
-	def show_dao(self, surface, pos_X, pos_Y, side= "A"):
+	def show_dao(self, surface, pos_X, pos_Y, side= "A", size= None):
 		if self.on_screen == True:
 			if self.state == self.IDLE:
-				sprite = self.sprites[self.IDLE][self.current_frame]
-				width, heigth = sprite.get_size()
-				if side == "B":
-					sprite = pygame.transform.flip(sprite, True, False)
-				surface.blit(sprite, (pos_X - (width // 2), pos_Y - (heigth // 2)))
-				self.current_frame = self.current_frame + 1 if (self.current_frame + 1) < len(self.sprites[self.IDLE]) else 0
-			
+				self.sprites[self.IDLE].play(surface, pos_X, pos_Y, mirrored= False if side == "A" else True, size= size)
+							
 			elif self.state == self.PRE_MAGIC:
-				sprite = self.sprites[self.PRE_MAGIC][self.current_frame]
-				width, heigth = sprite.get_size()
-				if side == "B":
-					sprite = pygame.transform.flip(sprite, True, False)
-				surface.blit(sprite, (pos_X - (width // 2), pos_Y - (heigth // 2)))
-				self.current_frame += 1 if (self.current_frame + 1) < len(self.sprites[self.PRE_MAGIC]) else 0
+				self.sprites[self.PRE_MAGIC].play(surface, pos_X, pos_Y, mirrored= False if side == "A" else True, size= size)
 
 			elif self.state == self.POST_MAGIC:
-				sprite = self.sprites[self.POST_MAGIC][self.current_frame]
-				width, heigth = sprite.get_size()
-				if side == "B":
-					sprite = pygame.transform.flip(sprite, True, False)
-				surface.blit(sprite, (pos_X - (width // 2), pos_Y - (heigth // 2)))
-				self.current_frame += 1 if (self.current_frame + 1) < len(self.sprites[self.POST_MAGIC]) else 0
-								
+				self.sprites[self.POST_MAGIC].play(surface, pos_X, pos_Y, mirrored= False if side == "A" else True, size= size)
+			
 			elif self.state == self.PRE_PHYSICAL:
-				sprite = self.sprites[self.PRE_PHYSICAL][self.current_frame]
-				width, heigth = sprite.get_size()
-				if side == "B":
-					sprite = pygame.transform.flip(sprite, True, False)
-				surface.blit(sprite, (pos_X - (width // 2), pos_Y - (heigth // 2)))
-				self.current_frame += 1 if (self.current_frame + 1) < len(self.sprites[self.PRE_PHYSICAL]) else 0
-								
+				self.sprites[self.PRE_PHYSICAL].play(surface, pos_X, pos_Y, mirrored= False if side == "A" else True, size= size)
+			
 			elif self.state == self.POST_PHYSICAL:
-				sprite = self.sprites[self.POST_PHYSICAL][self.current_frame]
-				width, heigth = sprite.get_size()
-				if side == "B":
-					sprite = pygame.transform.flip(sprite, True, False)
-				surface.blit(sprite, (pos_X - (width // 2), pos_Y - (heigth // 2)))
-				self.current_frame += 1 if (self.current_frame + 1) < len(self.sprites[self.POST_PHYSICAL]) else 0
-								
+				self.sprites[self.POST_PHYSICAL].play(surface, pos_X, pos_Y, mirrored= False if side == "A" else True, size= size)
+			
 			elif self.state == self.GET_HIT:
-				sprite = self.sprites[self.GET_HIT][self.current_frame]
-				width, heigth = sprite.get_size()
-				if side == "B":
-					sprite = pygame.transform.flip(sprite, True, False)
-				surface.blit(sprite, (pos_X - (width // 2), pos_Y - (heigth // 2)))
-				self.current_frame += 1 if (self.current_frame + 1) < len(self.sprites[self.GET_HIT]) else 0
-								
+				self.sprites[self.GET_HIT].play(surface, pos_X, pos_Y, mirrored= False if side == "A" else True, size= size)
+
 			elif self.state == self.CRITICAL_GET_HIT:
-				sprite = self.sprites[self.CRITICAL_GET_HIT][self.current_frame]
-				width, heigth = sprite.get_size()
-				if side == "B":
-					sprite = pygame.transform.flip(sprite, True, False)
-				surface.blit(sprite, (pos_X - (width // 2), pos_Y - (heigth // 2)))
-				self.current_frame += 1 if (self.current_frame + 1) < len(self.sprites[self.CRITICAL_GET_HIT]) else 0
-								
+				self.sprites[self.CRITICAL_GET_HIT].play(surface, pos_X, pos_Y, mirrored= False if side == "A" else True, size= size)
+
 			elif self.state == self.DEFEATED:
-				sprite = self.sprites[self.DEFEATED][self.current_frame]
-				width, heigth = sprite.get_size()
-				if side == "B":
-					sprite = pygame.transform.flip(sprite, True, False)
-				surface.blit(sprite, (pos_X - (width // 2), pos_Y - (heigth // 2)))
-				self.current_frame += 1 if (self.current_frame + 1) < len(self.sprites[self.DEFEATED]) else 0
+				self.sprites[self.DEFEATED].play(surface, pos_X, pos_Y, mirrored= False if side == "A" else True, size= size)
 
 class Effect:
 	EMPTY = "empty"

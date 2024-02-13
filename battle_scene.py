@@ -350,8 +350,8 @@ class BattleUI:
 			self.show_type_icon(self.battle.currentDaoB.type2, TYPE_ICON2_B_POS_X, TYPE_ICON2_B_POS_Y)
 
 		# Daos sprites
-		self.battle.currentDaoA.show_dao(self.display_surface, DAO_A_POS_X, DAO_A_POS_Y, side="B")
-		self.battle.currentDaoB.show_dao(self.display_surface, DAO_B_POS_X, DAO_B_POS_Y, side="A")
+		self.battle.currentDaoA.show_dao(self.display_surface, DAO_A_POS_X, DAO_A_POS_Y, side="B", size= DAO_BATTLE_SIZE)
+		self.battle.currentDaoB.show_dao(self.display_surface, DAO_B_POS_X, DAO_B_POS_Y, side="A", size= DAO_BATTLE_SIZE)
 
 		# Situacional UI
 		if self.battle.state == Battle.MAIN_MENU:

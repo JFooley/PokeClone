@@ -1,4 +1,4 @@
-import csv, random, os, re
+import csv, random
 from classes import Dao, Move
 
 def generateMoves(archiveName: str):
@@ -89,20 +89,3 @@ def generateRandomMove(archiveName, type= "default"):
                 same_type_list.append(move)
 
         return random.choice(same_type_list)
-
-def find_images_paths(path, name):
-    caminhos_imagens = []
-    
-    # Listar arquivos no diretório
-    arquivos = os.listdir(path)
-    
-    for arquivo in arquivos:
-        # Verificar se o arquivo é uma imagem e se corresponde ao padrão
-        if re.match(rf"{name}-\d+\.png$", arquivo):
-            caminho_completo = os.path.join(path, arquivo)
-            caminhos_imagens.append(caminho_completo)
-    
-    # Ordenar os caminhos das imagens de acordo com o número no nome do arquivo
-    caminhos_imagens.sort(key=lambda x: int(re.search(rf"{name}-(\d+)\.png$", x).group(1)))
-    
-    return caminhos_imagens

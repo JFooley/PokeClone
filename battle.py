@@ -52,10 +52,10 @@ class Battle():
             self.initA = 0
             self.initB = 0
 
-            for daoA in self.currentDaoA:
+            for daoA in self.battleListA:
                 daoA.set_sprits()
                 daoA.on_screen = True
-            for dao in self.currentDaoB:
+            for daoB in self.battleListB:
                 daoB.set_sprits()
                 daoB.on_screen = True
 

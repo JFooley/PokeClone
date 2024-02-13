@@ -5,6 +5,8 @@ from battle import Battle
 from utils import *
 from classes import Guider
 from input import Input
+from animation import Animation
+from debug import *
 
 class Game:
     # States

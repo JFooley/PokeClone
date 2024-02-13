@@ -1,4 +1,3 @@
-import pygame
 from animation import Animation
 from settings import ANIM_FPS_IDLE, ANIM_FPS_PRE_MAGIC, ANIM_FPS_POST_MAGIC, ANIM_FPS_PRE_PHYSICAL, ANIM_FPS_POST_PHYSICAL, ANIM_FPS_GET_HIT, ANIM_FPS_CRITICAL_GET_HIT, ANIM_FPS_DEFEATED
 
@@ -88,6 +87,9 @@ class Dao:
 		DEFEATED_anim.set_images(base_path + "defeated", "defeated")
 		self.sprites[self.DEFEATED] = DEFEATED_anim
 
+	def unset_sprits(self):
+		self.sprites.clear()
+
 	def show_dao(self, surface, pos_X, pos_Y, side= "A", size= None):
 		if self.on_screen == True:
 			if self.state == self.IDLE:
@@ -97,34 +99,41 @@ class Dao:
 				self.sprites[self.PRE_MAGIC].play(surface, pos_X, pos_Y, mirrored= False if side == "A" else True, size= size)
 
 			elif self.state == self.POST_MAGIC:
-				self.sprites[self.POST_MAGIC].play(surface, pos_X, pos_Y, mirrored= False if side == "A" else True, size= size)
+				self.sprites[self.POST_MAGIC].play_once(surface, pos_X, pos_Y, mirrored= False if side == "A" else True, size= size)
+				if self.sprites[self.POST_MAGIC].is_playing == False:
+					self.state = self.IDLE
 			
 			elif self.state == self.PRE_PHYSICAL:
 				self.sprites[self.PRE_PHYSICAL].play(surface, pos_X, pos_Y, mirrored= False if side == "A" else True, size= size)
 			
 			elif self.state == self.POST_PHYSICAL:
-				self.sprites[self.POST_PHYSICAL].play(surface, pos_X, pos_Y, mirrored= False if side == "A" else True, size= size)
-			
+				self.sprites[self.POST_PHYSICAL].play_once(surface, pos_X, pos_Y, mirrored= False if side == "A" else True, size= size)
+				if self.sprites[self.POST_PHYSICAL].is_playing == False:
+					self.state = self.IDLE
+
 			elif self.state == self.GET_HIT:
-				self.sprites[self.GET_HIT].play(surface, pos_X, pos_Y, mirrored= False if side == "A" else True, size= size)
+				self.sprites[self.GET_HIT].play_once(surface, pos_X, pos_Y, mirrored= False if side == "A" else True, size= size)
+				if self.sprites[self.GET_HIT].is_playing == False:
+					self.state = self.IDLE
 
 			elif self.state == self.CRITICAL_GET_HIT:
-				self.sprites[self.CRITICAL_GET_HIT].play(surface, pos_X, pos_Y, mirrored= False if side == "A" else True, size= size)
+				self.sprites[self.CRITICAL_GET_HIT].play_once(surface, pos_X, pos_Y, mirrored= False if side == "A" else True, size= size)
+				if self.sprites[self.CRITICAL_GET_HIT].is_playing == False:
+					self.state = self.IDLE
 
 			elif self.state == self.DEFEATED:
 				self.sprites[self.DEFEATED].play(surface, pos_X, pos_Y, mirrored= False if side == "A" else True, size= size)
 
-class Effect:
-	EMPTY = "empty"
-
 class Move:
+	PHYSICAL = "Physical"
+	SPECIAL = "Special"
+
 	def __init__(self, id, name, text, type, kind, power: int, accuracy: float, uses: int, level: int, effect= ""):
 		self.id = id
 		self.name = name
 		self.text = text
 		self.type = type 
 		self.kind = kind
-		self.base_power = power
 		self.power = power
 		self.accuracy = accuracy
 		self.uses = uses

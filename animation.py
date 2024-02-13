@@ -70,7 +70,7 @@ class Animation:
     def play_once(self, surface, pos_X, pos_Y, mirrored= False, size= None):
         self.is_playing = True
 
-        if self.on_screen:
+        if self.on_screen and self.sprites:
             sprite = self.sprites[self.current_frame]
             width, heigth = sprite.get_size()
 
@@ -95,4 +95,5 @@ class Animation:
 
             # Change animation state when finished
             if self.current_frame == (len(self.sprites) - 1):
+                self.current_frame = 0
                 self.is_playing = False

@@ -5,6 +5,7 @@ from battle import Battle
 from utils import *
 from classes import Guider
 from input import Input
+from debug import debug
 
 class BattleUI:
 	def __init__(self, battleObject: Battle, game):
@@ -53,7 +54,6 @@ class BattleUI:
 
 		# Listas
 		self.daos = generateDaos(archiveName= os.path.join("Data", "Daos.csv"))
-		self.moves = generateMoves(archiveName= os.path.join("Data", "Moves.csv"))
 
 	def run(self):
 		if self.battle.state == Battle.INTRO:
@@ -71,29 +71,71 @@ class BattleUI:
 			if self.game.state == 1 and self.battle.state == Battle.MAIN_MENU:
 				if Input().key_up(key_code= Input().X) and self.battle.currentDaoA.currentHP > 0:
 					self.battle.state = Battle.FIGHT_MENU
+
 				elif Input().key_up(key_code= Input().B):
 					self.battle.state = Battle.SUMMON_MENU
 
 			# BATTLE MENU
 			elif self.game.state == 1 and self.battle.state == Battle.FIGHT_MENU:
-				if Input().key_up(key_code= Input().Y): 
-					self.on_screen_text = "Move Y utilizado!"
-					self.battle.state = Battle.TEXT_ON_SCREEN
-				elif Input().key_up(key_code= Input().A):
-					self.on_screen_text = "Move A utilizado!"
-					self.battle.state = Battle.TEXT_ON_SCREEN
-				elif Input().key_up(key_code= Input().X):
-					self.on_screen_text = "Move X utilizado!"
-					self.battle.state = Battle.TEXT_ON_SCREEN
-				elif Input().key_up(key_code= Input().B):
-					self.on_screen_text = "Move B utilizado!"
+				if Input().key_up(key_code= Input().Y) and len(self.battle.currentDaoA.moves) > 0: 
+					self.on_screen_text = f"Vá {self.battle.currentDaoA.name}, utilize {self.battle.currentDaoA.moves[0].name}!"
 					self.battle.state = Battle.TEXT_ON_SCREEN
 					
+					if self.battle.currentDaoA.moves[0].kind == Move.SPECIAL:
+						self.battle.currentDaoA.state = Dao.PRE_MAGIC
+					elif self.battle.currentDaoA.moves[0].kind == Move.PHYSICAL:
+						self.battle.currentDaoA.state = Dao.PRE_PHYSICAL
+					else:
+						self.battle.currentDaoA.state = Dao.GET_HIT
+					# Falta a chamada para a lógica de batalha
+
+				elif Input().key_up(key_code= Input().X) and len(self.battle.currentDaoA.moves) > 1:
+					self.on_screen_text = f"Vá {self.battle.currentDaoA.name}, utilize {self.battle.currentDaoA.moves[1].name}!"
+					self.battle.state = Battle.TEXT_ON_SCREEN
+					
+					if self.battle.currentDaoA.moves[1].kind == Move.SPECIAL:
+						self.battle.currentDaoA.state = Dao.PRE_MAGIC
+					elif self.battle.currentDaoA.moves[1].kind == Move.PHYSICAL:
+						self.battle.currentDaoA.state = Dao.PRE_PHYSICAL
+					else:
+						self.battle.currentDaoA.state = Dao.GET_HIT
+					# Falta a chamada para a lógica de batalha
+						
+				elif Input().key_up(key_code= Input().B) and len(self.battle.currentDaoA.moves) > 2:
+					self.on_screen_text = f"Vá {self.battle.currentDaoA.name}, utilize {self.battle.currentDaoA.moves[2].name}!"
+					self.battle.state = Battle.TEXT_ON_SCREEN
+					
+					if self.battle.currentDaoA.moves[2].kind == Move.SPECIAL:
+						self.battle.currentDaoA.state = Dao.PRE_MAGIC
+					elif self.battle.currentDaoA.moves[2].kind == Move.PHYSICAL:
+						self.battle.currentDaoA.state = Dao.PRE_PHYSICAL
+					else:
+						self.battle.currentDaoA.state = Dao.GET_HIT
+
+					# Falta a chamada para a lógica de batalha
+					
+				elif Input().key_up(key_code= Input().A) and len(self.battle.currentDaoA.moves) > 3:
+					self.on_screen_text = f"Vá {self.battle.currentDaoA.name}, utilize {self.battle.currentDaoA.moves[3].name}!"
+					self.battle.state = Battle.TEXT_ON_SCREEN
+					
+					if self.battle.currentDaoA.moves[3].kind == Move.SPECIAL:
+						self.battle.currentDaoA.state = Dao.PRE_MAGIC
+					elif self.battle.currentDaoA.moves[3].kind == Move.PHYSICAL:
+						self.battle.currentDaoA.state = Dao.PRE_PHYSICAL
+					else:
+						self.battle.currentDaoA.state = Dao.GET_HIT
+
+					# Falta a chamada para a lógica de batalha
+				
+
 			# TEXT ON SCREEN
 			elif self.game.state == 1 and self.battle.state == Battle.TEXT_ON_SCREEN:
 				if Input().key_up(key_code= Input().A):
 					self.on_screen_text = ''
 					self.battle.state = Battle.MAIN_MENU
+
+					if self.battle.currentDaoA.state == Dao.PRE_MAGIC:
+						self.battle.currentDaoA.state = Dao.POST_MAGIC
 			
 			# SUMMON MENU
 			elif self.game.state == 1 and self.battle.state == Battle.SUMMON_MENU:
@@ -134,41 +176,28 @@ class BattleUI:
 						self.battle.state = Battle.TEXT_ON_SCREEN
 
 		### PROVISÓRIO ###
-			if Input().key_down(key_code= Input().start):
-				self.battle.currentDaoA.set_sprits()
-				self.battle.currentDaoB.set_sprits()
-				self.battle.currentDaoA.on_screen = True
-				self.battle.currentDaoB.on_screen = True
-
 		if self.game.state == 0 and Input().key_down(key_code= Input().select):
-			daoA1: Dao = self.daos['6']
-			daoA2 = self.daos['106']
-			daoA3 = self.daos['215']
-			daoA4 = self.daos['122']
-			daoA5 = self.daos['200']
+			daoA1 = self.daos['722']
+			daoA2 = self.daos['384']
+			daoA3 = self.daos['17']
+			daoA4 = self.daos['6']
+			daoA5 = self.daos['208']
+			daoA6 = self.daos['150']
 			
-			daoA1.level = 5
-			daoA2.level = 10
-			daoA3.level = 3
-			daoA4.level = 8
-			daoA5.level = 2
-
 			daoA1.summon_text = f"Nascido do fogo e da forja, eu clamo por seu poder, surja! {daoA1.name}!"
 			daoA2.summon_text = f"Sua força é inigualável, invoco o seu espirito! venha {daoA2.name}!"
 
-			daoA1.moves.append(self.moves["1"])
-			daoA1.moves.append(self.moves["10"])
-			daoA1.moves.append(self.moves["52"])
+			for dao in [daoA1, daoA2, daoA3, daoA4, daoA5, daoA6]:
+				daoA1.level = random.randint(1, 10)
+				dao.moves.append(generateRandomMove(archiveName= "Data/Moves.csv", type= dao.type1))
+				dao.moves.append(generateRandomMove(archiveName= "Data/Moves.csv", type= dao.type1))
+				dao.moves.append(generateRandomMove(archiveName= "Data/Moves.csv", type= dao.type2 if dao.type2 != "" else dao.type1))
+				dao.moves.append(generateRandomMove(archiveName= "Data/Moves.csv", type= dao.type2 if dao.type2 != "" else dao.type1))
+				self.game.player.Insert_dao(dao)
 
-			self.game.player.Insert_dao(daoA1)
-			self.game.player.Insert_dao(daoA2)
-			self.game.player.Insert_dao(daoA3)
-			self.game.player.Insert_dao(daoA4)
-			self.game.player.Insert_dao(daoA5)
-
-			daoB1 = self.daos['6']
-			daoB2 = self.daos['20']
-			daoB3 = self.daos['30']
+			daoB1 = self.daos['9']
+			daoB2 = self.daos['6']
+			daoB3 = self.daos['386']
 			enemy = Guider("Enemy", 0, {}, [daoB1, daoB2, daoB3])
 
 			self.battle.Start(self.game.player, enemy)
@@ -350,8 +379,8 @@ class BattleUI:
 			self.show_type_icon(self.battle.currentDaoB.type2, TYPE_ICON2_B_POS_X, TYPE_ICON2_B_POS_Y)
 
 		# Daos sprites
-		self.battle.currentDaoA.show_dao(self.display_surface, DAO_A_POS_X, DAO_A_POS_Y, side="B", size= DAO_BATTLE_SIZE)
-		self.battle.currentDaoB.show_dao(self.display_surface, DAO_B_POS_X, DAO_B_POS_Y, side="A", size= DAO_BATTLE_SIZE)
+		self.battle.currentDaoA.show_dao(self.display_surface, DAO_A_POS_X, DAO_A_POS_Y, side="A", size= DAO_BATTLE_SIZE)
+		self.battle.currentDaoB.show_dao(self.display_surface, DAO_B_POS_X, DAO_B_POS_Y, side="B", size= DAO_BATTLE_SIZE)
 
 		# Situacional UI
 		if self.battle.state == Battle.MAIN_MENU:

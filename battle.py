@@ -62,6 +62,13 @@ class Battle():
             self.state = Battle.INTRO
 
     def End(self):
+        for daoA in self.battleListA:
+            daoA.unset_sprits()
+            daoA.on_screen = False
+        for daoB in self.battleListB:
+            daoB.set_sprits()
+            daoB.on_screen = False
+
         self.state = Battle.END
 
     def Turn(self, actionA, actionB, action_index_A, action_index_B):

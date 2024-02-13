@@ -1,5 +1,5 @@
 import random
-from classes import Move, Dao, Effect, Guider
+from classes import Move, Dao, Guider
 from settings import WIDTH
 import copy
 

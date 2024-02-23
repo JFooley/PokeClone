@@ -97,3 +97,6 @@ class Animation:
             if self.current_frame == (len(self.sprites) - 1):
                 self.current_frame = 0
                 self.is_playing = False
+
+    def reset(self):
+        self.current_frame = 0

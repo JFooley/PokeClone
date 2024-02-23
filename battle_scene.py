@@ -7,7 +7,7 @@ from classes import Guider
 from input import Input
 from debug import debug
 
-class BattleUI:
+class BattleScene:
 	def __init__(self, battleObject: Battle, game):
 		self.game = game
 		self.battle: Battle = battleObject
@@ -21,6 +21,8 @@ class BattleUI:
 		# Charts
 		self.colorChart = generateColorChart("Data/ColorChart.csv")
 		self.typeChart = generateTypeChart("Data/TypeChart.csv")
+		self.daosChart = generateDaos("Data/Daos.csv")
+		self.moveChart = generateMoves("Data/Moves.csv")
 	
 		# general 
 		self.display_surface = pygame.display.get_surface()
@@ -52,9 +54,6 @@ class BattleUI:
 		self.button_rect_L = pygame.Rect(BUTTON_BANNER_L_X, BUTTON_BANNER_L_Y, BUTTON_WIDTH, BUTTON_HEIGTH)
 		self.button_rect_R = pygame.Rect(BUTTON_BANNER_R_X, BUTTON_BANNER_R_Y, BUTTON_WIDTH, BUTTON_HEIGTH)
 
-		# Listas
-		self.daos = generateDaos(archiveName= os.path.join("Data", "Daos.csv"))
-
 	def run(self):
 		if self.battle.state == Battle.INTRO:
 			self.play_intro()
@@ -85,8 +84,6 @@ class BattleUI:
 						self.battle.currentDaoA.state = Dao.PRE_MAGIC
 					elif self.battle.currentDaoA.moves[0].kind == Move.PHYSICAL:
 						self.battle.currentDaoA.state = Dao.PRE_PHYSICAL
-					else:
-						self.battle.currentDaoA.state = Dao.GET_HIT
 					# Falta a chamada para a lógica de batalha
 
 				elif Input().key_up(key_code= Input().X) and len(self.battle.currentDaoA.moves) > 1:
@@ -97,8 +94,6 @@ class BattleUI:
 						self.battle.currentDaoA.state = Dao.PRE_MAGIC
 					elif self.battle.currentDaoA.moves[1].kind == Move.PHYSICAL:
 						self.battle.currentDaoA.state = Dao.PRE_PHYSICAL
-					else:
-						self.battle.currentDaoA.state = Dao.GET_HIT
 					# Falta a chamada para a lógica de batalha
 						
 				elif Input().key_up(key_code= Input().B) and len(self.battle.currentDaoA.moves) > 2:
@@ -109,9 +104,6 @@ class BattleUI:
 						self.battle.currentDaoA.state = Dao.PRE_MAGIC
 					elif self.battle.currentDaoA.moves[2].kind == Move.PHYSICAL:
 						self.battle.currentDaoA.state = Dao.PRE_PHYSICAL
-					else:
-						self.battle.currentDaoA.state = Dao.GET_HIT
-
 					# Falta a chamada para a lógica de batalha
 					
 				elif Input().key_up(key_code= Input().A) and len(self.battle.currentDaoA.moves) > 3:
@@ -122,11 +114,10 @@ class BattleUI:
 						self.battle.currentDaoA.state = Dao.PRE_MAGIC
 					elif self.battle.currentDaoA.moves[3].kind == Move.PHYSICAL:
 						self.battle.currentDaoA.state = Dao.PRE_PHYSICAL
-					else:
-						self.battle.currentDaoA.state = Dao.GET_HIT
-
 					# Falta a chamada para a lógica de batalha
-				
+						
+				elif Input().key_up(key_code= Input().L):
+					self.battle.state = Battle.MAIN_MENU
 
 			# TEXT ON SCREEN
 			elif self.game.state == 1 and self.battle.state == Battle.TEXT_ON_SCREEN:
@@ -177,27 +168,27 @@ class BattleUI:
 
 		### PROVISÓRIO ###
 		if self.game.state == 0 and Input().key_down(key_code= Input().select):
-			daoA1 = self.daos['722']
-			daoA2 = self.daos['384']
-			daoA3 = self.daos['17']
-			daoA4 = self.daos['6']
-			daoA5 = self.daos['208']
-			daoA6 = self.daos['150']
+			daoA1 = self.daosChart['722']
+			daoA2 = self.daosChart['384']
+			daoA3 = self.daosChart['17']
+			daoA4 = self.daosChart['6']
+			daoA5 = self.daosChart['208']
+			daoA6 = self.daosChart['150']
 			
 			daoA1.summon_text = f"Nascido do fogo e da forja, eu clamo por seu poder, surja! {daoA1.name}!"
 			daoA2.summon_text = f"Sua força é inigualável, invoco o seu espirito! venha {daoA2.name}!"
 
 			for dao in [daoA1, daoA2, daoA3, daoA4, daoA5, daoA6]:
 				daoA1.level = random.randint(1, 10)
-				dao.moves.append(generateRandomMove(archiveName= "Data/Moves.csv", type= dao.type1))
-				dao.moves.append(generateRandomMove(archiveName= "Data/Moves.csv", type= dao.type1))
-				dao.moves.append(generateRandomMove(archiveName= "Data/Moves.csv", type= dao.type2 if dao.type2 != "" else dao.type1))
-				dao.moves.append(generateRandomMove(archiveName= "Data/Moves.csv", type= dao.type2 if dao.type2 != "" else dao.type1))
+				dao.moves.append(generateRandomMove(archiveName= "Data/Moves.csv", move_chart= self.moveChart, type= dao.type1))
+				dao.moves.append(generateRandomMove(archiveName= "Data/Moves.csv", move_chart= self.moveChart, type= dao.type1))
+				dao.moves.append(generateRandomMove(archiveName= "Data/Moves.csv", move_chart= self.moveChart, type= dao.type2 if dao.type2 != "" else dao.type1))
+				dao.moves.append(generateRandomMove(archiveName= "Data/Moves.csv", move_chart= self.moveChart, type= dao.type2 if dao.type2 != "" else dao.type1))
 				self.game.player.Insert_dao(dao)
 
-			daoB1 = self.daos['9']
-			daoB2 = self.daos['6']
-			daoB3 = self.daos['386']
+			daoB1 = self.daosChart['9']
+			daoB2 = self.daosChart['6']
+			daoB3 = self.daosChart['386']
 			enemy = Guider("Enemy", 0, {}, [daoB1, daoB2, daoB3])
 
 			self.battle.Start(self.game.player, enemy)
@@ -409,6 +400,9 @@ class BattleUI:
 			self.show_button_UI("A", Input().A, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_A_X, BUTTON_A_Y, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS)
 			moveA = self.battle.currentDaoA.moves[3].name if 3 < len(self.battle.currentDaoA.moves) else ""
 			self.show_button(moveA, TEXT_COLOR, self.button_rect_A, BUTTON_ABXY_RADIUS, BUTTON_ABXY_RADIUS, type1= self.battle.currentDaoA.moves[3].type if len(self.battle.currentDaoA.moves) > 3 else "")
+
+			self.show_button_UI("L", Input().L, ABXY_COLOR, ON_SELECT_COLOR, BUTTON_L_X, BUTTON_L_Y, 0, BUTTON_ABXY_RADIUS)
+			self.show_button("Back", TEXT_COLOR, self.button_rect_L, BUTTON_ABXY_RADIUS, 0)
 
 		elif self.battle.state == Battle.SUMMON_MENU:
 			# Button A

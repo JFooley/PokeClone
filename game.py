@@ -1,6 +1,6 @@
 import pygame, sys
 from settings import *
-from battle_scene import BattleUI
+from battle_scene import BattleScene
 from battle import Battle
 from utils import *
 from classes import Guider
@@ -32,7 +32,7 @@ class Game:
             self.state = self.EXPLORING
 
     def run(self):
-        battleUI = BattleUI(self.battleObject, self)
+        battleScene = BattleScene(self.battleObject, self)
         Input().initialize()
 
         while True: # Event Handdler
@@ -48,7 +48,9 @@ class Game:
 
             # Must Run 
             self.Update_status()
-            battleUI.run()
+            battleScene.run()
+
+            debug(self.battleObject.currentDaoA.state if self.battleObject.currentDaoA else "No Dao")
 
             # Finnally
             Input().update()

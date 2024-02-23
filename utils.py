@@ -12,15 +12,17 @@ def generateMoves(archiveName: str):
     
     return moveChart
 
-def getMove(archiveName: str, ID):
-    with open(archiveName, 'r') as File:
-        result = csv.reader(File)
-        for line in result:
-            if line[0] == ID:
-                selectedMove = Move(line[0], line[1], line[2], line[3], line[4], int(line[5]), float(line[6]), uses= 0, level= 1)
-    
-    return selectedMove
+def getMove(archiveName: str, ID, move_chart= None):
 
+    if move_chart == None:
+        with open(archiveName, 'r') as File:
+            result = csv.reader(File)
+            for line in result:
+                if line[0] == ID:
+                    return Move(line[0], line[1], line[2], line[3], line[4], int(line[5]), float(line[6]), uses= 0, level= 1)
+    else:
+        return move_chart[ID]
+        
 def generateDaos(archiveName: str):
     daoChart = {}
     with open(archiveName, 'r') as File:
@@ -72,13 +74,30 @@ def generateColorChart(archiveName: str):
     
     return typeChart
 
-def generateRandomDao(archiveName, level= 1):
-    pass
+def generateRandomDao(daoArchiveName, movesArchiveName, level= 1, moves= None, move_chart= None, dao_chart= None):
+    if dao_chart == None:
+        dao_chart = generateDaos(daoArchiveName)
 
-def generateRandomMove(archiveName, type= "default"):
-    move_chart = generateMoves(archiveName)
+    if move_chart == None:
+        move_chart = generateMoves(movesArchiveName)
 
-    if type == "default":
+    selected_dao: Dao = random.choice(dao_chart)
+    move1 = generateRandomMove(movesArchiveName, type=selected_dao.type1, move_chart=move_chart)
+    move2 = generateRandomMove(movesArchiveName, type=selected_dao.type1, move_chart=move_chart)
+    move3 = generateRandomMove(movesArchiveName, type=selected_dao.type2 if selected_dao.type2 != "" else selected_dao.type1, move_chart=move_chart)
+    move4 = generateRandomMove(movesArchiveName, type=selected_dao.type2 if selected_dao.type2 != "" else selected_dao.type1, move_chart=move_chart)
+    
+    selected_dao.level = level
+    for move in [move1, move2, move3, move4]:
+        selected_dao.moves.append(move)
+
+    return selected_dao    
+
+def generateRandomMove(archiveName, type= None, move_chart: dict= None):
+    if move_chart == None:
+        move_chart = generateMoves(archiveName)
+
+    if type == None:
         move_list = list(move_chart.values())
         return random.choice(move_list)
     
@@ -89,3 +108,4 @@ def generateRandomMove(archiveName, type= "default"):
                 same_type_list.append(move)
 
         return random.choice(same_type_list)
+    

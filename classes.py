@@ -92,6 +92,11 @@ class Dao:
 
 	def show_dao(self, surface, pos_X, pos_Y, side= "A", size= None):
 		if self.on_screen == True:
+			if self.currentHP <= 0:
+				self.state = self.DEFEATED
+			elif self.state == self.DEFEATED:
+				self.state = self.IDLE
+
 			if self.state == self.IDLE:
 				self.sprites[self.IDLE].play(surface, pos_X, pos_Y, mirrored= False if side == "A" else True, size= size)
 							

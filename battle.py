@@ -21,7 +21,6 @@ class Battle():
     POST_DUEL = "podu"
     END = 'end'
 
-
     def __init__(self):
         self.guiderA = None
         self.guiderB = None

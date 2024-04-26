@@ -26,7 +26,7 @@ class Input:
         if not self._initialized:
             self._initialized = True
             self.last_frame = copy.deepcopy(pygame.key.get_pressed())
-            self.last_frame_gamepad = {}
+            self.last_frame_gamepad = None
 
             if pygame.joystick.get_count() != 0:
                 self.input_type = self.GAMEPAD
@@ -57,6 +57,8 @@ class Input:
     def update(self):
         if self.input_type == self.KEYBOARD:
             self.last_frame = copy.deepcopy(pygame.key.get_pressed())
+        elif self.input_type == self.GAMEPAD:
+            self.last_frame_gamepad = [[pygame.joystick.Joystick(0).get_button(i) for i in range(pygame.joystick.Joystick(0).get_numbuttons())]]
 
     def change_pattern(self, pattern):
         self.input_type = pattern
@@ -76,31 +78,35 @@ class Input:
             self.Y = pygame.K_w
 
         elif pattern == self.GAMEPAD:
-            self.up = 11
-            self.down = 12
-            self.left = 13
-            self.right = 14
-            self.start = 8
-            self.select = 7
-            self.L = 5
-            self.R = 6
-            self.A = 1
-            self.B = 2
-            self.X = 3
-            self.Y = 4
+            self.up = 8
+            self.down = 8
+            self.left = 8
+            self.right = 8
+            self.start = 7
+            self.select = 6
+            self.L = 4
+            self.R = 5
+            self.A = 0
+            self.B = 1
+            self.X = 2
+            self.Y = 3
 
     def handle_joystick_events(self, event):
         if event.type == pygame.JOYDEVICEADDED:
             self.change_pattern(self.GAMEPAD)
             joystick = pygame.joystick.Joystick(0)
             joystick.init()
+            self.update()
 
         elif event.type == pygame.JOYDEVICEREMOVED:
             self.change_pattern(self.KEYBOARD)
+            self.update()
             
         # You can call this method in the event handler looping to change automatically between
         # keyboard and gamepad when a joystick is coneccted. You can change the class to detect
         # when a especific button is pressed to change the pattern.
+
+        # Self.update() call ensures that self.last_frame will be correct to the current pattern 
 
     def key_hold(self, key_code):
         if self.input_type == self.GAMEPAD:
@@ -110,12 +116,12 @@ class Input:
 
     def key_down(self, key_code):
         if self.input_type == self.GAMEPAD:
-            return pygame.joystick.Joystick(0).get_button(key_code) and not self.last_frame_gamepad[key_code]
+            return pygame.joystick.Joystick(0).get_button(key_code) and not self.last_frame_gamepad[0][key_code]
         else:
             return not self.last_frame[key_code] and pygame.key.get_pressed()[key_code]
 
     def key_up(self, key_code):
         if self.input_type == self.GAMEPAD:
-            return not pygame.joystick.Joystick(0).get_button(key_code) and self.last_frame_gamepad[key_code]
+            return not pygame.joystick.Joystick(0).get_button(key_code) and self.last_frame_gamepad[0][key_code]
         else: 
             return self.last_frame[key_code] and not pygame.key.get_pressed()[key_code]

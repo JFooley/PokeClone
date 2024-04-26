@@ -50,7 +50,7 @@ class Game:
             self.Update_status()
             battleScene.run()
 
-            debug(self.battleObject.currentDaoA.state if self.battleObject.currentDaoA else "No Dao")
+            debug("Gamepad" if Input().input_type == 2 else "Keyboard")
 
             # Finnally
             Input().update()

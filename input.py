@@ -93,6 +93,9 @@ class Input:
             self.X = 2
             self.Y = 3
 
+        # OBS: Hat buttons are not considered buttons to pygame.joystick.Joystick(0), instead they are considered axis
+        # so to solve the problem they have especial patern IDs that can be compared directly with the axis tuple.
+
     def handle_joystick_events(self, event):
         if event.type == pygame.JOYDEVICEADDED:
             self.change_pattern(self.GAMEPAD)

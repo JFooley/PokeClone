@@ -27,6 +27,7 @@ class Input:
             self._initialized = True
             self.last_frame = copy.deepcopy(pygame.key.get_pressed())
             self.last_frame_gamepad = None
+            self.last_frame_gamepad_hats = None
 
             if pygame.joystick.get_count() != 0:
                 self.input_type = self.GAMEPAD
@@ -59,6 +60,7 @@ class Input:
             self.last_frame = copy.deepcopy(pygame.key.get_pressed())
         elif self.input_type == self.GAMEPAD:
             self.last_frame_gamepad = [[pygame.joystick.Joystick(0).get_button(i) for i in range(pygame.joystick.Joystick(0).get_numbuttons())]]
+            self.last_frame_gamepad_hats = pygame.joystick.Joystick(0).get_hat(0)
 
     def change_pattern(self, pattern):
         self.input_type = pattern
@@ -78,10 +80,10 @@ class Input:
             self.Y = pygame.K_w
 
         elif pattern == self.GAMEPAD:
-            self.up = 8
-            self.down = 8
-            self.left = 8
-            self.right = 8
+            self.up = "(0, 1)"
+            self.down = "(0, -1)"
+            self.left = "(-1, 0)"
+            self.right = "(1, 0)"
             self.start = 7
             self.select = 6
             self.L = 4
@@ -110,18 +112,27 @@ class Input:
 
     def key_hold(self, key_code):
         if self.input_type == self.GAMEPAD:
-            return pygame.joystick.Joystick(0).get_button(key_code)
+            if type(key_code) == str: # When the pressed buton is a hat button
+                return (repr(pygame.joystick.Joystick(0).get_hat(0)) == key_code)
+            else:
+                return pygame.joystick.Joystick(0).get_button(key_code)
         else:
             return pygame.key.get_pressed()[key_code]
 
     def key_down(self, key_code):
         if self.input_type == self.GAMEPAD:
-            return pygame.joystick.Joystick(0).get_button(key_code) and not self.last_frame_gamepad[0][key_code]
+            if type(key_code) == str: # When the pressed buton is a hat button
+                return (repr(pygame.joystick.Joystick(0).get_hat(0)) == key_code) and self.last_frame_gamepad_hats != pygame.joystick.Joystick(0).get_hat(0)
+            else:
+                return pygame.joystick.Joystick(0).get_button(key_code) and not self.last_frame_gamepad[0][key_code]
         else:
             return not self.last_frame[key_code] and pygame.key.get_pressed()[key_code]
 
     def key_up(self, key_code):
         if self.input_type == self.GAMEPAD:
-            return not pygame.joystick.Joystick(0).get_button(key_code) and self.last_frame_gamepad[0][key_code]
+            if type(key_code) == str: # When the pressed buton is a hat button
+                return (repr(pygame.joystick.Joystick(0).get_hat(0)) == key_code) and self.last_frame_gamepad_hats != pygame.joystick.Joystick(0).get_hat(0)
+            else:
+                return not pygame.joystick.Joystick(0).get_button(key_code) and self.last_frame_gamepad[0][key_code]
         else: 
             return self.last_frame[key_code] and not pygame.key.get_pressed()[key_code]

@@ -16,5 +16,5 @@ Ser guia é como uma profissão, os guias competem entre si em torneios e batalh
 
 # Features e observações:
 - Os Daos e movimentos são criados com base em tabelas CSV, compatíveis com o esquema dos movimentos e status dos pokemons. Ou seja, é possível criar Daos a partir dos status base de pokemons. 
-- O esquema de input está modularizado e foi feito de forma genérica para que pode ser mapeado para diferentes teclas ou até outros dispositivos.
+- O esquema de input está modularizado e foi feito de forma genérica para que pode ser mapeado para diferentes teclas ou até outros dispositivos. Ele é capaz de detectar quando um gamepad é conectado ou desconectado e atualizar automaticamente o esquema de controles para o teclado ou para o gamepad.
 - Um behaviour base de teste está implementado para que a batalha possa ser iniciada com atores e etc., e testar o funcionamento da UI e demais componentes.
